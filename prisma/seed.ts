@@ -1,7 +1,19 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { hashSync } from "bcryptjs";
 
-const prisma = new PrismaClient();
+function createPrismaClient(): PrismaClient {
+  if (process.env.TURSO_DATABASE_URL && process.env.TURSO_AUTH_TOKEN) {
+    const adapter = new PrismaLibSQL({
+      url: process.env.TURSO_DATABASE_URL,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+    return new PrismaClient({ adapter });
+  }
+  return new PrismaClient();
+}
+
+const prisma = createPrismaClient();
 
 async function main() {
   console.log("Seeding database...");

@@ -6,7 +6,7 @@ Resource sharing platform for North District United Methodist churches in the Ri
 
 - **Framework**: Next.js 16 App Router (Turbopack)
 - **Language**: TypeScript 5.9, React 19
-- **Database**: SQLite via Prisma 6
+- **Database**: SQLite (local) / Turso (production) via Prisma 6 + @prisma/adapter-libsql
 - **Auth**: JWT (jose) in HttpOnly cookies, bcryptjs for passwords
 - **i18n**: next-intl (locales: en, es)
 - **Styling**: Tailwind CSS 4 (oklch color theme)
@@ -49,7 +49,7 @@ src/
   i18n/                # Routing, navigation, request config
   lib/
     auth.ts            # JWT sign/verify, cookie helpers, getCurrentUser, requireAuth
-    prisma.ts          # Prisma client singleton
+    prisma.ts          # Prisma client singleton (auto-selects Turso adapter when TURSO env vars set)
     constants.ts       # Category/subcategory/format/role enums
     locale-utils.ts    # Bilingual field helper
     email.ts           # Resend email notifications for loan lifecycle
@@ -61,7 +61,9 @@ messages/
   es.json              # Spanish translations
 prisma/
   schema.prisma        # 9 models: Church, Resource, Tag, ResourceTag, User, LoanRequest, Loan, SiteSettings, ActivityLog
-  seed.ts              # 4 churches, 17 resources, 10 tags, 5 users, sample loans, sample activity logs
+  seed.ts              # 4 churches, 19 resources, 10 tags, 5 users, sample loans, sample activity logs
+  push-turso.ts        # Apply DDL to Turso via @libsql/client (prisma db push doesn't support libsql:// URLs)
+  turso-schema.sql     # Generated DDL for Turso (prisma migrate diff --from-empty --to-schema-datamodel)
 ```
 
 ## Database Models
@@ -103,7 +105,17 @@ After every successful `pnpm build`, commit all changes and push to origin.
 ## Environment Variables
 
 ```
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./dev.db"           # Local SQLite for dev
 JWT_SECRET="change-in-production"
-RESEND_API_KEY=""          # Empty = emails logged to console; set to send via Resend
+RESEND_API_KEY=""                      # Empty = emails logged to console; set to send via Resend
+TURSO_DATABASE_URL=""                  # Production: libsql://... (set on Vercel)
+TURSO_AUTH_TOKEN=""                    # Production: Turso auth token (set on Vercel)
 ```
+
+## Deployment
+
+- **Vercel**: https://north-district-resources.vercel.app (auto-deploys from GitHub main)
+- **Turso**: Hosted LibSQL database (US East 1)
+- **Schema push to Turso**: `TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... pnpm exec tsx prisma/push-turso.ts`
+- **Seed Turso**: `DATABASE_URL=file:./dev.db TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... pnpm exec tsx prisma/seed.ts`
+- `PrismaLibSQL` takes a config object `{ url, authToken }`, NOT a pre-created @libsql/client
