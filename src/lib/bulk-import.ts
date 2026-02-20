@@ -51,6 +51,27 @@ interface ExistingTag {
   name: string;
 }
 
+// Header alias map: alternate column names → canonical field names
+const HEADER_ALIASES: Record<string, string> = {
+  composer: "authorComposer",
+  author: "authorComposer",
+  "author/composer": "authorComposer",
+  "title (spanish)": "titleEs",
+  "title (es)": "titleEs",
+  "spanish title": "titleEs",
+  "description (spanish)": "descriptionEs",
+  "description (es)": "descriptionEs",
+  qty: "quantity",
+  "max loan weeks": "maxLoanWeeks",
+  "loan weeks": "maxLoanWeeks",
+};
+
+function normalizeHeader(header: string): string {
+  const trimmed = header.trim();
+  const lower = trimmed.toLowerCase();
+  return HEADER_ALIASES[lower] || trimmed;
+}
+
 // Alias maps: common alternate names → canonical enum values
 const SUBCATEGORY_ALIASES: Record<string, string> = {
   // Music
@@ -100,7 +121,7 @@ export function parseCSV(
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (header: string) => header.trim(),
+      transformHeader: (header: string) => normalizeHeader(header),
       complete(results) {
         const errors: string[] = [];
         if (results.errors.length > 0) {
@@ -275,11 +296,11 @@ export async function parseXLSX(
       defval: "",
     });
 
-    // Convert all values to strings to match CSV parser output
+    // Convert all values to strings and normalize headers
     const rows: Record<string, string>[] = jsonRows.map((row) => {
       const stringRow: Record<string, string> = {};
       for (const [key, value] of Object.entries(row)) {
-        stringRow[key.trim()] = value == null ? "" : String(value);
+        stringRow[normalizeHeader(key)] = value == null ? "" : String(value);
       }
       return stringRow;
     });
