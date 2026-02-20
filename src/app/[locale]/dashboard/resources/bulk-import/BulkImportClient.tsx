@@ -49,6 +49,7 @@ export function BulkImportClient({
   const validRows = rows.filter((r) => r.valid);
   const errorRows = rows.filter((r) => !r.valid);
   const warningRows = rows.filter((r) => r.valid && r.warnings.length > 0);
+  const newTagRows = rows.filter((r) => r.valid && r.data.newTagNames.length > 0);
 
   const handleDownloadTemplate = () => {
     const csv = generateTemplate();
@@ -136,6 +137,7 @@ export function BulkImportClient({
       quantity: r.data.quantity,
       maxLoanWeeks: r.data.maxLoanWeeks,
       tagIds: r.data.tagIds,
+      newTagNames: r.data.newTagNames,
     }));
 
     try {
@@ -318,7 +320,7 @@ export function BulkImportClient({
               {t("summaryBar", {
                 valid: validRows.length,
                 errors: errorRows.length,
-                warnings: warningRows.length,
+                newTags: newTagRows.length,
               })}
             </span>
             {errorRows.length > 0 && (
@@ -388,8 +390,8 @@ export function BulkImportClient({
                     className={`border-b border-primary-100 ${
                       !row.valid
                         ? "bg-red-50"
-                        : row.warnings.length > 0
-                          ? "bg-yellow-50"
+                        : row.data.newTagNames.length > 0
+                          ? "bg-blue-50"
                           : "hover:bg-primary-50"
                     }`}
                   >
@@ -423,15 +425,15 @@ export function BulkImportClient({
                             ))}
                           </ul>
                         </div>
-                      ) : row.warnings.length > 0 ? (
+                      ) : row.data.newTagNames.length > 0 ? (
                         <div>
-                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-700">
-                            {t("hasWarnings")}
+                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+                            {t("valid")}
                           </span>
-                          <ul className="mt-1 text-xs text-yellow-600">
-                            {row.warnings.map((tag, i) => (
+                          <ul className="mt-1 text-xs text-blue-600">
+                            {row.data.newTagNames.map((tag, i) => (
                               <li key={i}>
-                                {t("warningUnknownTag", { tag })}
+                                {t("newTagWillCreate", { tag })}
                               </li>
                             ))}
                           </ul>

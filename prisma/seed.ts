@@ -136,6 +136,24 @@ async function main() {
     prisma.tag.create({
       data: { name: "Wesleyan", nameEs: "Wesleyano", category: "BOTH" },
     }),
+    prisma.tag.create({
+      data: { name: "SATB", category: "MUSIC" },
+    }),
+    prisma.tag.create({
+      data: { name: "SAB", category: "MUSIC" },
+    }),
+    prisma.tag.create({
+      data: { name: "Orchestration", nameEs: "Orquestación", category: "MUSIC" },
+    }),
+    prisma.tag.create({
+      data: { name: "SSAATTBB", category: "MUSIC" },
+    }),
+    prisma.tag.create({
+      data: { name: "SSAATTBB a cappella", nameEs: "SSAATTBB a capella", category: "MUSIC" },
+    }),
+    prisma.tag.create({
+      data: { name: "2-Part", nameEs: "2 Voces", category: "MUSIC" },
+    }),
   ]);
 
   const [

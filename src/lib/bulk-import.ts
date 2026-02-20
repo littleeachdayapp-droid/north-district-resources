@@ -35,6 +35,7 @@ export interface ResourceImportRow {
   quantity: number;
   maxLoanWeeks: number | null;
   tagIds: string[];
+  newTagNames: string[];
 }
 
 export interface ValidatedRow {
@@ -204,10 +205,11 @@ export function validateRow(
     }
   }
 
-  // Tags
+  // Tags — split on comma or semicolon
   const tagIds: string[] = [];
+  const newTagNames: string[] = [];
   if (raw.tags) {
-    const tagNames = raw.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const tagNames = raw.tags.split(/[,;]/).map((t) => t.trim()).filter(Boolean);
     for (const name of tagNames) {
       const match = existingTags.find(
         (t) => t.name.toLowerCase() === name.toLowerCase()
@@ -215,7 +217,7 @@ export function validateRow(
       if (match) {
         tagIds.push(match.id);
       } else {
-        warnings.push(name); // tag name stored for warning display
+        newTagNames.push(name);
       }
     }
   }
@@ -236,6 +238,7 @@ export function validateRow(
       quantity,
       maxLoanWeeks,
       tagIds,
+      newTagNames,
     },
     errors,
     warnings,

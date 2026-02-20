@@ -22,6 +22,7 @@ const resourceItemSchema = z.object({
   quantity: z.number().int().min(1).default(1),
   maxLoanWeeks: z.number().int().min(1).max(52).nullable().optional(),
   tagIds: z.array(z.string()).optional(),
+  newTagNames: z.array(z.string()).optional(),
 });
 
 const bulkImportSchema = z.object({
@@ -61,17 +62,55 @@ export async function POST(request: NextRequest) {
     let created = 0;
     const errors: { row: number; error: string }[] = [];
 
+    // Pre-create all new tags in bulk (deduped), then map names → IDs
+    const allNewNames = new Set<string>();
+    const categoryByResource = new Map<number, string>();
+    for (let i = 0; i < parsed.resources.length; i++) {
+      const item = parsed.resources[i];
+      categoryByResource.set(i, item.category);
+      if (item.newTagNames?.length) {
+        for (const name of item.newTagNames) {
+          allNewNames.add(name);
+        }
+      }
+    }
+
+    // Upsert new tags (use the resource category for the tag, default to BOTH if mixed)
+    const newTagMap = new Map<string, string>(); // lowercase name → tag ID
+    for (const name of allNewNames) {
+      const existing = await prisma.tag.findFirst({
+        where: { name: { equals: name } },
+      });
+      if (existing) {
+        newTagMap.set(name.toLowerCase(), existing.id);
+      } else {
+        const tag = await prisma.tag.create({
+          data: { name, category: "MUSIC" },
+        });
+        newTagMap.set(name.toLowerCase(), tag.id);
+      }
+    }
+
     for (let i = 0; i < parsed.resources.length; i++) {
       const item = parsed.resources[i];
       try {
-        const { tagIds, ...data } = item;
+        const { tagIds, newTagNames, ...data } = item;
+
+        // Merge existing tag IDs with newly created tag IDs
+        const allTagIds = [...(tagIds || [])];
+        if (newTagNames?.length) {
+          for (const name of newTagNames) {
+            const id = newTagMap.get(name.toLowerCase());
+            if (id) allTagIds.push(id);
+          }
+        }
 
         const resource = await prisma.resource.create({
           data: {
             ...data,
             churchId,
-            tags: tagIds?.length
-              ? { create: tagIds.map((tagId) => ({ tagId })) }
+            tags: allTagIds.length
+              ? { create: allTagIds.map((tagId) => ({ tagId })) }
               : undefined,
           },
         });
