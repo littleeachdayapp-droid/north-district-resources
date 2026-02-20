@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale, getLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { localizedField } from "@/lib/locale-utils";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { RequestLoanButton } from "@/components/RequestLoanButton";
 import { Link } from "@/i18n/navigation";
 
 export default async function ResourceDetailPage({
@@ -207,6 +208,13 @@ export default async function ResourceDetailPage({
               </p>
             </div>
           )}
+
+          {/* Request loan button */}
+          <RequestLoanButton
+            resourceId={resource.id}
+            resourceChurchId={resource.churchId}
+            availabilityStatus={resource.availabilityStatus}
+          />
 
           {/* Availability notes */}
           {resource.availabilityNotes && (
