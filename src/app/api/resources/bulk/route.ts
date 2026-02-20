@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { logActivity } from "@/lib/activity-log";
 import { z } from "zod";
 import {
   CATEGORIES,
@@ -29,6 +28,8 @@ const bulkImportSchema = z.object({
   resources: z.array(resourceItemSchema).min(1),
   churchId: z.string().optional(),
 });
+
+const BATCH_SIZE = 100;
 
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
@@ -59,15 +60,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let created = 0;
-    const errors: { row: number; error: string }[] = [];
-
-    // Pre-create all new tags in bulk (deduped), then map names → IDs
+    // 1. Collect and dedupe all new tag names
     const allNewNames = new Set<string>();
-    const categoryByResource = new Map<number, string>();
-    for (let i = 0; i < parsed.resources.length; i++) {
-      const item = parsed.resources[i];
-      categoryByResource.set(i, item.category);
+    for (const item of parsed.resources) {
       if (item.newTagNames?.length) {
         for (const name of item.newTagNames) {
           allNewNames.add(name);
@@ -75,67 +70,115 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Upsert new tags (use the resource category for the tag, default to BOTH if mixed)
+    // 2. Batch-create new tags
     const newTagMap = new Map<string, string>(); // lowercase name → tag ID
-    for (const name of allNewNames) {
-      const existing = await prisma.tag.findFirst({
-        where: { name: { equals: name } },
+    if (allNewNames.size > 0) {
+      // Check which already exist (case-insensitive)
+      const existingTags = await prisma.tag.findMany({
+        where: { name: { in: [...allNewNames] } },
       });
-      if (existing) {
-        newTagMap.set(name.toLowerCase(), existing.id);
-      } else {
-        const tag = await prisma.tag.create({
-          data: { name, category: "MUSIC" },
+      for (const tag of existingTags) {
+        newTagMap.set(tag.name.toLowerCase(), tag.id);
+        allNewNames.delete(tag.name);
+      }
+
+      // Create remaining in batch
+      if (allNewNames.size > 0) {
+        const created = await prisma.tag.createManyAndReturn({
+          data: [...allNewNames].map((name) => ({
+            name,
+            category: "MUSIC",
+          })),
         });
-        newTagMap.set(name.toLowerCase(), tag.id);
+        for (const tag of created) {
+          newTagMap.set(tag.name.toLowerCase(), tag.id);
+        }
       }
     }
 
-    for (let i = 0; i < parsed.resources.length; i++) {
-      const item = parsed.resources[i];
-      try {
-        const { tagIds, newTagNames, ...data } = item;
+    // 3. Resolve per-row tag IDs (existing + newly created)
+    const rowTagIds: string[][] = parsed.resources.map((item) => {
+      const ids = [...(item.tagIds || [])];
+      if (item.newTagNames?.length) {
+        for (const name of item.newTagNames) {
+          const id = newTagMap.get(name.toLowerCase());
+          if (id) ids.push(id);
+        }
+      }
+      return ids;
+    });
 
-        // Merge existing tag IDs with newly created tag IDs
-        const allTagIds = [...(tagIds || [])];
-        if (newTagNames?.length) {
-          for (const name of newTagNames) {
-            const id = newTagMap.get(name.toLowerCase());
-            if (id) allTagIds.push(id);
+    // 4. Insert resources in batches using createManyAndReturn
+    let created = 0;
+    const allResourceTagLinks: { resourceId: string; tagId: string }[] = [];
+    const allActivityLogs: {
+      userId: string;
+      action: string;
+      entityType: string;
+      entityId: string;
+      details: string;
+    }[] = [];
+
+    for (let batchStart = 0; batchStart < parsed.resources.length; batchStart += BATCH_SIZE) {
+      const batchEnd = Math.min(batchStart + BATCH_SIZE, parsed.resources.length);
+      const batch = parsed.resources.slice(batchStart, batchEnd);
+
+      const createdResources = await prisma.resource.createManyAndReturn({
+        data: batch.map((item) => {
+          const { tagIds: _t, newTagNames: _n, ...data } = item;
+          return { ...data, churchId };
+        }),
+      });
+
+      for (let j = 0; j < createdResources.length; j++) {
+        const resource = createdResources[j];
+        const globalIdx = batchStart + j;
+        const tags = rowTagIds[globalIdx];
+
+        if (tags.length > 0) {
+          for (const tagId of tags) {
+            allResourceTagLinks.push({ resourceId: resource.id, tagId });
           }
         }
 
-        const resource = await prisma.resource.create({
-          data: {
-            ...data,
-            churchId,
-            tags: allTagIds.length
-              ? { create: allTagIds.map((tagId) => ({ tagId })) }
-              : undefined,
-          },
-        });
-
-        logActivity({
+        allActivityLogs.push({
           userId: user.id,
           action: "CREATE_RESOURCE",
           entityType: "Resource",
           entityId: resource.id,
-          details: `Bulk imported resource "${item.title}"`,
+          details: `Bulk imported resource "${batch[j].title}"`,
         });
 
         created++;
-      } catch (err) {
-        errors.push({
-          row: i,
-          error: err instanceof Error ? err.message : "Unknown error",
+      }
+    }
+
+    // 5. Batch-insert ResourceTag links
+    if (allResourceTagLinks.length > 0) {
+      for (let i = 0; i < allResourceTagLinks.length; i += BATCH_SIZE) {
+        await prisma.resourceTag.createMany({
+          data: allResourceTagLinks.slice(i, i + BATCH_SIZE),
         });
       }
     }
 
+    // 6. Batch-insert activity logs (fire-and-forget)
+    void (async () => {
+      try {
+        for (let i = 0; i < allActivityLogs.length; i += BATCH_SIZE) {
+          await prisma.activityLog.createMany({
+            data: allActivityLogs.slice(i, i + BATCH_SIZE),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to log bulk import activity:", err);
+      }
+    })();
+
     return NextResponse.json({
       created,
-      failed: errors.length,
-      errors,
+      failed: parsed.resources.length - created,
+      errors: [],
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
