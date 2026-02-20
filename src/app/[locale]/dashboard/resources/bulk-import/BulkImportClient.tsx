@@ -314,23 +314,46 @@ export function BulkImportClient({
       {/* Step 2: Preview & Validate */}
       {step === "preview" && (
         <div className="space-y-4">
-          {/* Summary bar */}
-          <div className="flex flex-wrap items-center gap-4 bg-primary-50 border border-primary-200 rounded-lg px-4 py-3">
-            <span className="text-sm font-medium text-primary-700">
-              {t("summaryBar", {
-                valid: validRows.length,
-                errors: errorRows.length,
-                newTags: newTagRows.length,
-              })}
-            </span>
-            {errorRows.length > 0 && (
+          {/* Summary bar + action buttons */}
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-primary-50 border border-primary-200 rounded-lg px-4 py-3">
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="text-sm font-medium text-primary-700">
+                {t("summaryBar", {
+                  valid: validRows.length,
+                  errors: errorRows.length,
+                  newTags: newTagRows.length,
+                })}
+              </span>
+              {errorRows.length > 0 && (
+                <button
+                  onClick={handleRemoveInvalid}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium"
+                >
+                  {t("removeInvalid")}
+                </button>
+              )}
+            </div>
+            <div className="flex gap-3">
               <button
-                onClick={handleRemoveInvalid}
-                className="text-sm text-red-600 hover:text-red-700 font-medium"
+                onClick={handleReset}
+                className="px-4 py-2 border border-primary-300 text-primary-700 rounded-md text-sm font-medium hover:bg-primary-50 transition-colors"
               >
-                {t("removeInvalid")}
+                {tAuth("cancel")}
               </button>
-            )}
+              <button
+                onClick={handleImport}
+                disabled={
+                  validRows.length === 0 ||
+                  importing ||
+                  (isAdmin && !churchId)
+                }
+                className="px-6 py-2 bg-primary-700 text-white rounded-md text-sm font-medium hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {importing
+                  ? t("importing")
+                  : t("importButton", { count: validRows.length })}
+              </button>
+            </div>
           </div>
 
           {/* Admin church selector */}
@@ -450,28 +473,6 @@ export function BulkImportClient({
             </table>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 border border-primary-300 text-primary-700 rounded-md text-sm font-medium hover:bg-primary-50 transition-colors"
-            >
-              {tAuth("cancel")}
-            </button>
-            <button
-              onClick={handleImport}
-              disabled={
-                validRows.length === 0 ||
-                importing ||
-                (isAdmin && !churchId)
-              }
-              className="px-6 py-2 bg-primary-700 text-white rounded-md text-sm font-medium hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {importing
-                ? t("importing")
-                : t("importButton", { count: validRows.length })}
-            </button>
-          </div>
         </div>
       )}
 
