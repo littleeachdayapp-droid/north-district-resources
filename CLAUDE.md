@@ -86,6 +86,10 @@ prisma/
 - Zod 4 validation on all write endpoints; error details via `err.issues`
 - next-intl `Link` from `@/i18n/navigation` for locale-aware routing; cast non-typed paths with `as never`
 
+## Workflow
+
+After every successful `pnpm build`, commit all changes and push to origin.
+
 ## Environment Variables
 
 ```
