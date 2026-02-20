@@ -15,6 +15,7 @@ export default async function ResourceDetailPage({
   setRequestLocale(locale);
   const t = await getTranslations("resources");
   const tc = await getTranslations("common");
+  const tAuth = await getTranslations("auth");
   const tCat = await getTranslations("categories");
   const tSub = await getTranslations("subcategories");
   const tFmt = await getTranslations("formats");
@@ -67,6 +68,7 @@ export default async function ResourceDetailPage({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -149,7 +151,7 @@ export default async function ResourceDetailPage({
               {resource.publisher && (
                 <div>
                   <dt className="text-xs font-medium text-primary-400 uppercase">
-                    Publisher
+                    {tAuth("publisher")}
                   </dt>
                   <dd className="text-primary-700">{resource.publisher}</dd>
                 </div>

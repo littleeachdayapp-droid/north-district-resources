@@ -59,6 +59,7 @@ export function ResourceForm({
   churches,
 }: ResourceFormProps) {
   const t = useTranslations("auth");
+  const tc = useTranslations("common");
   const tCat = useTranslations("categories");
   const tSub = useTranslations("subcategories");
   const tFmt = useTranslations("formats");
@@ -327,7 +328,7 @@ export function ResourceForm({
         {/* Quantity */}
         <div>
           <label htmlFor="quantity" className={labelClass}>
-            Quantity
+            {tc("quantity")}
           </label>
           <input
             id="quantity"
@@ -361,7 +362,7 @@ export function ResourceForm({
       {/* Availability Status */}
       <div>
         <label htmlFor="availabilityStatus" className={labelClass}>
-          {tAvail("AVAILABLE")}
+          {t("availabilityStatus")}
         </label>
         <select
           id="availabilityStatus"
@@ -393,7 +394,7 @@ export function ResourceForm({
       {/* Tags */}
       {filteredTags.length > 0 && (
         <div>
-          <span className={labelClass}>Tags</span>
+          <span className={labelClass}>{tc("tags")}</span>
           <div className="flex flex-wrap gap-2 mt-1">
             {filteredTags.map((tag) => (
               <label

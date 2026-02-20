@@ -26,6 +26,7 @@ export function AvailabilityBadge({ status }: { status: string }) {
               ? "bg-on-loan"
               : "bg-unavailable"
         }`}
+        aria-hidden="true"
       />
       {t(key)}
     </span>

@@ -108,6 +108,7 @@ model LoanRequest {
   loan Loan?
 
   @@index([resourceId, requestingChurchId, status])
+  @@index([status])
 }
 
 model Loan {
@@ -129,6 +130,8 @@ model Loan {
   updatedAt        DateTime     @updatedAt
 
   @@index([resourceId, borrowingChurchId, lendingChurchId, status])
+  @@index([lendingChurchId, status])
+  @@index([borrowingChurchId, status])
 }
 
 model SiteSettings {

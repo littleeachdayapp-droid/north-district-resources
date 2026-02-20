@@ -17,7 +17,6 @@ export default async function DashboardPage() {
         where: resourceWhere,
         include: {
           church: { select: { id: true, name: true, nameEs: true } },
-          tags: { include: { tag: true } },
         },
         orderBy: { createdAt: "desc" },
       }),

@@ -90,6 +90,7 @@ export function DashboardClient({
   borrowedLoans,
 }: DashboardClientProps) {
   const t = useTranslations("auth");
+  const tc = useTranslations("common");
   const tL = useTranslations("loans");
   const tCat = useTranslations("categories");
   const tSub = useTranslations("subcategories");
@@ -272,17 +273,17 @@ export function DashboardClient({
                   <tr className="border-b border-primary-200 text-left text-primary-600">
                     <th className="py-3 pr-4 font-medium">{t("title")}</th>
                     <th className="py-3 pr-4 font-medium hidden sm:table-cell">
-                      {tCat("MUSIC")}/{tCat("STUDY")}
+                      {tc("category")}
                     </th>
                     <th className="py-3 pr-4 font-medium hidden md:table-cell">
-                      {tSub("HYMNAL").split(" ")[0]}
+                      {tc("subcategory")}
                     </th>
                     {isAdmin && (
                       <th className="py-3 pr-4 font-medium hidden lg:table-cell">
                         {t("church")}
                       </th>
                     )}
-                    <th className="py-3 pr-4 font-medium">Status</th>
+                    <th className="py-3 pr-4 font-medium">{t("status")}</th>
                     <th className="py-3 font-medium text-right">
                       {t("actions")}
                     </th>
