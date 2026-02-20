@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Church {
+  id        String   @id @default(cuid())
+  name      String
+  nameEs    String?
+  address   String?
+  city      String?
+  state     String?  @default("TX")
+  zip       String?
+  phone     String?
+  email     String?
+  pastor    String?
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resources     Resource[]
+  users         User[]
+  loanRequests  LoanRequest[]
+  borrowedLoans Loan[]        @relation("BorrowingChurch")
+  lentLoans     Loan[]        @relation("LendingChurch")
+}
+
+model Resource {
+  id                 String   @id @default(cuid())
+  churchId           String
+  church             Church   @relation(fields: [churchId], references: [id])
+  category           String   // MUSIC | STUDY
+  title              String
+  titleEs            String?
+  authorComposer     String?
+  publisher          String?
+  description        String?
+  descriptionEs      String?
+  subcategory        String?
+  format             String?
+  quantity           Int      @default(1)
+  availabilityStatus String   @default("AVAILABLE") // AVAILABLE | ON_LOAN | UNAVAILABLE
+  availabilityNotes  String?
+  maxLoanWeeks       Int?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tags         ResourceTag[]
+  loanRequests LoanRequest[]
+  loans        Loan[]
+
+  @@index([churchId, category, availabilityStatus])
+}
+
+model Tag {
+  id       String @id @default(cuid())
+  name     String @unique
+  nameEs   String?
+  category String // MUSIC | STUDY | BOTH
+
+  resources ResourceTag[]
+}
+
+model ResourceTag {
+  resourceId String
+  tagId      String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([resourceId, tagId])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  churchId     String?
+  church       Church?  @relation(fields: [churchId], references: [id])
+  username     String   @unique
+  passwordHash String
+  displayName  String
+  role         String   @default("EDITOR") // EDITOR | ADMIN
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model LoanRequest {
+  id                 String   @id @default(cuid())
+  resourceId         String
+  resource           Resource @relation(fields: [resourceId], references: [id])
+  requestingChurchId String
+  requestingChurch   Church   @relation(fields: [requestingChurchId], references: [id])
+  status             String   @default("PENDING") // PENDING | APPROVED | DENIED | CANCELLED
+  requestDate        DateTime @default(now())
+  neededByDate       DateTime?
+  returnByDate       DateTime?
+  message            String?
+  responseMessage    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  loan Loan?
+
+  @@index([resourceId, requestingChurchId, status])
+}
+
+model Loan {
+  id               String       @id @default(cuid())
+  resourceId       String
+  resource         Resource     @relation(fields: [resourceId], references: [id])
+  loanRequestId    String?      @unique
+  loanRequest      LoanRequest? @relation(fields: [loanRequestId], references: [id])
+  borrowingChurchId String
+  borrowingChurch  Church       @relation("BorrowingChurch", fields: [borrowingChurchId], references: [id])
+  lendingChurchId  String
+  lendingChurch    Church       @relation("LendingChurch", fields: [lendingChurchId], references: [id])
+  startDate        DateTime     @default(now())
+  dueDate          DateTime?
+  returnDate       DateTime?
+  status           String       @default("ACTIVE") // ACTIVE | RETURNED | OVERDUE | LOST
+  notes            String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([resourceId, borrowingChurchId, lendingChurchId, status])
+}
