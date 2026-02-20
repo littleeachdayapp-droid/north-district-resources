@@ -62,7 +62,8 @@
     "availabilityNotes": "Availability Notes",
     "currentlyOnLoan": "Currently on loan",
     "borrowedBy": "Borrowed by",
-    "noDescription": "No description provided."
+    "noDescription": "No description provided.",
+    "contactToBorrow": "Contact Church to Borrow"
   },
   "categories": {
     "MUSIC": "Music",

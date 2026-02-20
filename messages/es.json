@@ -62,7 +62,8 @@
     "availabilityNotes": "Notas de disponibilidad",
     "currentlyOnLoan": "Actualmente en préstamo",
     "borrowedBy": "Prestado a",
-    "noDescription": "Sin descripción."
+    "noDescription": "Sin descripción.",
+    "contactToBorrow": "Contactar Iglesia para Préstamo"
   },
   "categories": {
     "MUSIC": "Música",

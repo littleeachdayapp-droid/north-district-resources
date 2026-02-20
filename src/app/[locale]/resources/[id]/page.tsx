@@ -112,6 +112,19 @@ export default async function ResourceDetailPage({
             </Link>
           </p>
 
+          {/* Contact church to borrow */}
+          {resource.church.email && (
+            <a
+              href={`mailto:${resource.church.email}?subject=${encodeURIComponent(`Resource Inquiry: ${resource.title}`)}&body=${encodeURIComponent(`Hello ${resource.church.name},\n\nI am interested in borrowing "${resource.title}" from your church.\n\nPlease let me know about availability and how to arrange pickup.\n\nThank you!`)}`}
+              className="inline-flex items-center gap-2 bg-accent-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-accent-700 transition-colors mb-6"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              {t("contactToBorrow")}
+            </a>
+          )}
+
           {/* Description */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-primary-800 mb-2">
