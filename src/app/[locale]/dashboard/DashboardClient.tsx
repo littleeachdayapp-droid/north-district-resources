@@ -175,12 +175,22 @@ export function DashboardClient({
             )}
           </p>
         </div>
-        <Link
-          href={"/dashboard/resources/new" as never}
-          className="inline-flex items-center gap-2 bg-primary-700 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-800 transition-colors text-sm"
-        >
-          + {t("addResource")}
-        </Link>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Link
+              href={"/dashboard/admin" as never}
+              className="inline-flex items-center gap-2 bg-purple-700 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-800 transition-colors text-sm"
+            >
+              {t("adminPanel")}
+            </Link>
+          )}
+          <Link
+            href={"/dashboard/resources/new" as never}
+            className="inline-flex items-center gap-2 bg-primary-700 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-800 transition-colors text-sm"
+          >
+            + {t("addResource")}
+          </Link>
+        </div>
       </div>
 
       {/* Tab navigation */}
