@@ -31,6 +31,8 @@ src/
     [locale]/          # Locale-prefixed routes (en, es)
       dashboard/       # Auth-protected resource management
         activity/      # Activity log page
+        resources/
+          bulk-import/ # CSV bulk import wizard (3-step: upload, preview, results)
       login/           # Login page
       music/           # Public music browse
       study/           # Public study browse
@@ -38,7 +40,8 @@ src/
       resources/[id]/  # Resource detail
     api/
       auth/            # login, logout, me
-      resources/       # GET (public), POST/PUT/DELETE (auth)
+      resources/       # GET (public), POST/PUT/DELETE (auth), POST /bulk (bulk import)
+        bulk/          # POST bulk import (auth, EDITOR or ADMIN)
       churches/        # GET (public)
       tags/            # GET (public)
       activity/        # GET activity log (auth, paginated)
@@ -51,6 +54,7 @@ src/
     locale-utils.ts    # Bilingual field helper
     email.ts           # Resend email notifications for loan lifecycle
     activity-log.ts    # Fire-and-forget activity logging helper
+    bulk-import.ts     # CSV parsing (papaparse), row validation, template generation
   proxy.ts             # Middleware: next-intl + dashboard route protection
 messages/
   en.json              # English translations
@@ -86,7 +90,7 @@ prisma/
 ## Conventions
 
 - All bilingual fields: `field` (English) + `fieldEs` (Spanish, nullable)
-- i18n keys organized by namespace: `common`, `home`, `resources`, `categories`, `subcategories`, `availability`, `formats`, `churches`, `auth`, `loans`, `admin`, `activity`, `notifications`
+- i18n keys organized by namespace: `common`, `home`, `resources`, `categories`, `subcategories`, `availability`, `formats`, `churches`, `auth`, `loans`, `admin`, `activity`, `notifications`, `bulkImport`
 - Tailwind colors: `primary-*` (warm earth), `accent-*` (gold), `music-*` (green), `study-*` (slate)
 - API responses: `{ resources, pagination }` for lists; direct object for single items
 - Zod 4 validation on all write endpoints; error details via `err.issues`

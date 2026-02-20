@@ -94,6 +94,7 @@ export function DashboardClient({
   const tCat = useTranslations("categories");
   const tSub = useTranslations("subcategories");
   const tActivity = useTranslations("activity");
+  const tBulk = useTranslations("bulkImport");
   const router = useRouter();
   const isAdmin = user.role === "ADMIN";
 
@@ -190,6 +191,12 @@ export function DashboardClient({
             className="inline-flex items-center gap-2 border border-primary-300 text-primary-700 px-4 py-2 rounded-md font-medium hover:bg-primary-50 transition-colors text-sm"
           >
             {tActivity("viewActivityLog")}
+          </Link>
+          <Link
+            href={"/dashboard/resources/bulk-import" as never}
+            className="inline-flex items-center gap-2 border border-primary-300 text-primary-700 px-4 py-2 rounded-md font-medium hover:bg-primary-50 transition-colors text-sm"
+          >
+            {tBulk("pageTitle")}
           </Link>
           <Link
             href={"/dashboard/resources/new" as never}
