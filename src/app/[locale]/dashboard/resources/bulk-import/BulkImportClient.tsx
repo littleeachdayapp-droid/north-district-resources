@@ -5,8 +5,10 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   parseCSV,
+  parseXLSX,
   validateRow,
   generateTemplate,
+  generateExcelTemplate,
   type ValidatedRow,
 } from "@/lib/bulk-import";
 
@@ -59,10 +61,27 @@ export function BulkImportClient({
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadExcelTemplate = () => {
+    const data = generateExcelTemplate();
+    const blob = new Blob([data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "resource-import-template.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const processFile = useCallback(
     async (file: File) => {
       setParseErrors([]);
-      const { rows: parsed, errors } = await parseCSV(file);
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      const isExcel = ext === "xlsx" || ext === "xls";
+      const { rows: parsed, errors } = isExcel
+        ? await parseXLSX(file)
+        : await parseCSV(file);
       if (errors.length > 0) {
         setParseErrors(errors);
         return;
@@ -88,7 +107,8 @@ export function BulkImportClient({
     e.preventDefault();
     setDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith(".csv")) {
+    const ext = file?.name.split(".").pop()?.toLowerCase();
+    if (file && (ext === "csv" || ext === "xlsx" || ext === "xls")) {
       await processFile(file);
     }
   };
@@ -227,12 +247,20 @@ export function BulkImportClient({
             <p className="text-sm text-primary-600 mb-3">
               {t("downloadTemplateDesc")}
             </p>
-            <button
-              onClick={handleDownloadTemplate}
-              className="inline-flex items-center gap-2 bg-white border border-primary-300 text-primary-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-50 transition-colors"
-            >
-              {t("downloadTemplate")}
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={handleDownloadTemplate}
+                className="inline-flex items-center gap-2 bg-white border border-primary-300 text-primary-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-50 transition-colors"
+              >
+                {t("downloadTemplate")}
+              </button>
+              <button
+                onClick={handleDownloadExcelTemplate}
+                className="inline-flex items-center gap-2 bg-white border border-primary-300 text-primary-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-50 transition-colors"
+              >
+                {t("downloadExcelTemplate")}
+              </button>
+            </div>
           </div>
 
           {/* File upload zone */}
@@ -253,7 +281,7 @@ export function BulkImportClient({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx,.xls"
               onChange={handleFileSelect}
               className="hidden"
             />

@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import * as XLSX from "xlsx";
 import {
   CATEGORIES,
   FORMATS,
@@ -210,4 +211,119 @@ export function generateTemplate(category?: string): string {
   ];
 
   return [headers, ...exampleRows].join("\n");
+}
+
+export async function parseXLSX(
+  file: File
+): Promise<{ rows: Record<string, string>[]; errors: string[] }> {
+  try {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    if (!sheetName) {
+      return { rows: [], errors: ["No sheets found in workbook."] };
+    }
+    const sheet = workbook.Sheets[sheetName];
+    const jsonRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+      defval: "",
+    });
+
+    // Convert all values to strings to match CSV parser output
+    const rows: Record<string, string>[] = jsonRows.map((row) => {
+      const stringRow: Record<string, string> = {};
+      for (const [key, value] of Object.entries(row)) {
+        stringRow[key.trim()] = value == null ? "" : String(value);
+      }
+      return stringRow;
+    });
+
+    return { rows, errors: [] };
+  } catch {
+    return { rows: [], errors: ["Could not read Excel file. Please check the format."] };
+  }
+}
+
+export function generateExcelTemplate(category?: string): ArrayBuffer {
+  const headers = [...CSV_COLUMNS];
+
+  const exampleRows =
+    category === "STUDY"
+      ? [
+          {
+            category: "STUDY",
+            title: "Disciple Bible Study",
+            titleEs: "",
+            authorComposer: "John Smith",
+            publisher: "Cokesbury",
+            description: "A comprehensive Bible study",
+            descriptionEs: "",
+            subcategory: "BIBLE_STUDY",
+            format: "BOOK",
+            quantity: 5,
+            maxLoanWeeks: 4,
+            tags: "Bible Study",
+          },
+          {
+            category: "STUDY",
+            title: "Short-Term Disciple",
+            titleEs: "",
+            authorComposer: "Various",
+            publisher: "Abingdon",
+            description: "6-week Bible study overview",
+            descriptionEs: "",
+            subcategory: "BIBLE_STUDY",
+            format: "KIT",
+            quantity: 3,
+            maxLoanWeeks: 6,
+            tags: "Bible Study",
+          },
+        ]
+      : [
+          {
+            category: "MUSIC",
+            title: "The Faith We Sing",
+            titleEs: "",
+            authorComposer: "",
+            publisher: "",
+            description: "Hymnal supplement",
+            descriptionEs: "",
+            subcategory: "HYMNAL",
+            format: "BOOK",
+            quantity: 10,
+            maxLoanWeeks: 4,
+            tags: "Contemporary",
+          },
+          {
+            category: category === "MUSIC" ? "MUSIC" : "STUDY",
+            title:
+              category === "MUSIC"
+                ? "Handel's Messiah"
+                : "Short-Term Disciple",
+            titleEs: "",
+            authorComposer: category === "MUSIC" ? "G.F. Handel" : "Various",
+            publisher: category === "MUSIC" ? "" : "Abingdon",
+            description:
+              category === "MUSIC"
+                ? "Complete cantata score"
+                : "6-week Bible study overview",
+            descriptionEs: "",
+            subcategory: category === "MUSIC" ? "CANTATA" : "BIBLE_STUDY",
+            format: category === "MUSIC" ? "SHEET" : "KIT",
+            quantity: category === "MUSIC" ? 2 : 3,
+            maxLoanWeeks: category === "MUSIC" ? 8 : 6,
+            tags: "",
+          },
+        ];
+
+  const worksheet = XLSX.utils.json_to_sheet(exampleRows, { header: headers });
+
+  // Set column widths for readability
+  worksheet["!cols"] = headers.map((h) => ({
+    wch: Math.max(h.length + 2, 14),
+  }));
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Resources");
+
+  return XLSX.write(workbook, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
 }
