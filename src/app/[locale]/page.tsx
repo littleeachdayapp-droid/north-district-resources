@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { ResourceCard } from "@/components/ResourceCard";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage({
   params,
 }: {
