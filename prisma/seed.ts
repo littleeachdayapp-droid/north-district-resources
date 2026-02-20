@@ -7,6 +7,7 @@ async function main() {
   console.log("Seeding database...");
 
   // Clean existing data
+  await prisma.siteSettings.deleteMany();
   await prisma.loan.deleteMany();
   await prisma.loanRequest.deleteMany();
   await prisma.resourceTag.deleteMany();
@@ -14,6 +15,11 @@ async function main() {
   await prisma.tag.deleteMany();
   await prisma.user.deleteMany();
   await prisma.church.deleteMany();
+
+  // === Site Settings ===
+  await prisma.siteSettings.create({
+    data: { id: "singleton", emailNotifications: false },
+  });
 
   // === Churches ===
   const churches = await Promise.all([

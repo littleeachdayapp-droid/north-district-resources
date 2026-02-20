@@ -273,7 +273,14 @@
     "noChurches": "No churches found.",
     "selectChurch": "Select a church",
     "selectRole": "Select a role",
-    "noneAssigned": "None assigned"
+    "noneAssigned": "None assigned",
+    "settings": "Settings",
+    "settingsDescription": "Configure platform settings.",
+    "emailNotifications": "Email Notifications",
+    "emailNotificationsDescription": "Send email notifications to churches when loan requests are created, approved, denied, or when loan statuses change.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "settingsSaved": "Settings saved."
   },
   "notifications": {
     "greeting": "Hello {churchName},",

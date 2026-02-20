@@ -273,7 +273,14 @@
     "noChurches": "No se encontraron iglesias.",
     "selectChurch": "Selecciona una iglesia",
     "selectRole": "Selecciona un rol",
-    "noneAssigned": "Sin asignar"
+    "noneAssigned": "Sin asignar",
+    "settings": "Settings",
+    "settingsDescription": "Configurar los ajustes de la plataforma.",
+    "emailNotifications": "Notificaciones por Correo",
+    "emailNotificationsDescription": "Enviar notificaciones por correo a las iglesias cuando se crean, aprueban o rechazan solicitudes de préstamo, o cuando cambia el estado de un préstamo.",
+    "enabled": "Activado",
+    "disabled": "Desactivado",
+    "settingsSaved": "Ajustes guardados."
   },
   "notifications": {
     "greeting": "Hola {churchName},",

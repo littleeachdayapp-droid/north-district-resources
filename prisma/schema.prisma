@@ -128,3 +128,8 @@ model Loan {
 
   @@index([resourceId, borrowingChurchId, lendingChurchId, status])
 }
+
+model SiteSettings {
+  id                  String  @id @default("singleton")
+  emailNotifications  Boolean @default(false)
+}

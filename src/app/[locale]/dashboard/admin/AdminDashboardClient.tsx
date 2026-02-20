@@ -67,6 +67,12 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
         >
           {t("manageChurches")}
         </Link>
+        <Link
+          href={"/dashboard/admin/settings" as never}
+          className="inline-flex items-center justify-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-800 transition-colors"
+        >
+          {t("settings")}
+        </Link>
       </div>
     </div>
   );

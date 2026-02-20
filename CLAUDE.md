@@ -53,7 +53,7 @@ messages/
   en.json              # English translations
   es.json              # Spanish translations
 prisma/
-  schema.prisma        # 7 models: Church, Resource, Tag, ResourceTag, User, LoanRequest, Loan
+  schema.prisma        # 8 models: Church, Resource, Tag, ResourceTag, User, LoanRequest, Loan, SiteSettings
   seed.ts              # 4 churches, 17 resources, 10 tags, 5 users, sample loans
 ```
 
@@ -64,6 +64,7 @@ prisma/
 - **Tag** / **ResourceTag** — many-to-many tagging with bilingual names
 - **User** — username, passwordHash, role (EDITOR|ADMIN), optional churchId
 - **LoanRequest** / **Loan** — inter-church resource lending workflow
+- **SiteSettings** — singleton settings (email notifications toggle)
 
 ## Auth
 

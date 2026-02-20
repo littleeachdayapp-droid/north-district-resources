@@ -34,10 +34,26 @@ function buildEmailHtml(title: string, bodyLines: string[]): string {
 </html>`;
 }
 
+// --- Settings check ---
+
+async function isEmailEnabled(): Promise<boolean> {
+  try {
+    const settings = await prisma.siteSettings.findUnique({
+      where: { id: "singleton" },
+    });
+    return settings?.emailNotifications ?? false;
+  } catch {
+    return false;
+  }
+}
+
 // --- Send helper ---
 
 async function sendNotification(to: string, subject: string, html: string): Promise<void> {
   try {
+    const enabled = await isEmailEnabled();
+    if (!enabled) return;
+
     if (resend) {
       await resend.emails.send({ from: FROM_EMAIL, to, subject, html });
     } else {
