@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { notifyNewRequest } from "@/lib/email";
 
 const createRequestSchema = z.object({
   resourceId: z.string().min(1),
@@ -143,6 +144,8 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    notifyNewRequest(loanRequest.id);
 
     return NextResponse.json(loanRequest, { status: 201 });
   } catch (err) {

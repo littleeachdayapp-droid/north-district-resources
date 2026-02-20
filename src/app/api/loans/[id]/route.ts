@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { LOAN_STATUSES } from "@/lib/constants";
+import { notifyLoanReturned, notifyLoanOverdue, notifyLoanLost } from "@/lib/email";
 
 const updateLoanSchema = z.object({
   status: z.enum(LOAN_STATUSES),
@@ -72,6 +73,8 @@ export async function PUT(
         return updated;
       });
 
+      notifyLoanReturned(id);
+
       return NextResponse.json(result);
     } else if (parsed.status === "OVERDUE") {
       const updated = await prisma.loan.update({
@@ -81,6 +84,8 @@ export async function PUT(
           notes: parsed.notes || null,
         },
       });
+
+      notifyLoanOverdue(id);
 
       return NextResponse.json(updated);
     } else if (parsed.status === "LOST") {
@@ -100,6 +105,8 @@ export async function PUT(
 
         return updated;
       });
+
+      notifyLoanLost(id);
 
       return NextResponse.json(result);
     }

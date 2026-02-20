@@ -274,5 +274,24 @@
     "selectChurch": "Selecciona una iglesia",
     "selectRole": "Selecciona un rol",
     "noneAssigned": "Sin asignar"
+  },
+  "notifications": {
+    "greeting": "Hola {churchName},",
+    "viewDashboard": "Ver Panel",
+    "footer": "Recursos del Distrito Norte · Conferencia Río Texas",
+    "newRequestSubject": "Nueva Solicitud de Préstamo: {resourceTitle}",
+    "newRequestBody": "{requestingChurch} ha solicitado prestado \"{resourceTitle}\" de su iglesia. Inicie sesión para aprobar o rechazar esta solicitud.",
+    "requestApprovedSubject": "Solicitud Aprobada: {resourceTitle}",
+    "requestApprovedBody": "Su solicitud para pedir prestado \"{resourceTitle}\" de {owningChurch} ha sido aprobada. Coordine la recogida con la iglesia prestadora.",
+    "requestDeniedSubject": "Solicitud Rechazada: {resourceTitle}",
+    "requestDeniedBody": "Su solicitud para pedir prestado \"{resourceTitle}\" de {owningChurch} ha sido rechazada.",
+    "requestCancelledSubject": "Solicitud Cancelada: {resourceTitle}",
+    "requestCancelledBody": "{requestingChurch} ha cancelado su solicitud para pedir prestado \"{resourceTitle}\".",
+    "loanReturnedSubject": "Préstamo Devuelto: {resourceTitle}",
+    "loanReturnedBody": "{borrowingChurch} ha devuelto \"{resourceTitle}\". El recurso está disponible nuevamente.",
+    "loanOverdueSubject": "Préstamo Vencido: {resourceTitle}",
+    "loanOverdueBody": "El préstamo de \"{resourceTitle}\" a {borrowingChurch} ha sido marcado como vencido. Comuníquese para coordinar la devolución.",
+    "loanLostSubject": "Préstamo Perdido: {resourceTitle}",
+    "loanLostBody": "El préstamo de \"{resourceTitle}\" a {borrowingChurch} ha sido marcado como perdido. Contacte a {borrowingChurch} para resolver."
   }
 }

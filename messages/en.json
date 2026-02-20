@@ -274,5 +274,24 @@
     "selectChurch": "Select a church",
     "selectRole": "Select a role",
     "noneAssigned": "None assigned"
+  },
+  "notifications": {
+    "greeting": "Hello {churchName},",
+    "viewDashboard": "View Dashboard",
+    "footer": "North District Resource Sharing · Río Texas Conference",
+    "newRequestSubject": "New Loan Request for {resourceTitle}",
+    "newRequestBody": "{requestingChurch} has requested to borrow \"{resourceTitle}\" from your church. Please log in to approve or deny this request.",
+    "requestApprovedSubject": "Loan Request Approved: {resourceTitle}",
+    "requestApprovedBody": "Your request to borrow \"{resourceTitle}\" from {owningChurch} has been approved. Please coordinate pickup with the lending church.",
+    "requestDeniedSubject": "Loan Request Denied: {resourceTitle}",
+    "requestDeniedBody": "Your request to borrow \"{resourceTitle}\" from {owningChurch} has been denied.",
+    "requestCancelledSubject": "Loan Request Cancelled: {resourceTitle}",
+    "requestCancelledBody": "{requestingChurch} has cancelled their request to borrow \"{resourceTitle}\".",
+    "loanReturnedSubject": "Loan Returned: {resourceTitle}",
+    "loanReturnedBody": "{borrowingChurch} has returned \"{resourceTitle}\". The resource is now available again.",
+    "loanOverdueSubject": "Loan Overdue: {resourceTitle}",
+    "loanOverdueBody": "The loan of \"{resourceTitle}\" to {borrowingChurch} has been marked as overdue. Please follow up to arrange return.",
+    "loanLostSubject": "Loan Marked Lost: {resourceTitle}",
+    "loanLostBody": "The loan of \"{resourceTitle}\" to {borrowingChurch} has been marked as lost. Please contact {borrowingChurch} to resolve."
   }
 }

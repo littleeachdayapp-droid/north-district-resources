@@ -47,6 +47,7 @@ src/
     prisma.ts          # Prisma client singleton
     constants.ts       # Category/subcategory/format/role enums
     locale-utils.ts    # Bilingual field helper
+    email.ts           # Resend email notifications for loan lifecycle
   proxy.ts             # Middleware: next-intl + dashboard route protection
 messages/
   en.json              # English translations
@@ -80,7 +81,7 @@ prisma/
 ## Conventions
 
 - All bilingual fields: `field` (English) + `fieldEs` (Spanish, nullable)
-- i18n keys organized by namespace: `common`, `home`, `resources`, `categories`, `subcategories`, `availability`, `formats`, `churches`, `auth`
+- i18n keys organized by namespace: `common`, `home`, `resources`, `categories`, `subcategories`, `availability`, `formats`, `churches`, `auth`, `loans`, `admin`, `notifications`
 - Tailwind colors: `primary-*` (warm earth), `accent-*` (gold), `music-*` (green), `study-*` (slate)
 - API responses: `{ resources, pagination }` for lists; direct object for single items
 - Zod 4 validation on all write endpoints; error details via `err.issues`
@@ -95,4 +96,5 @@ After every successful `pnpm build`, commit all changes and push to origin.
 ```
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="change-in-production"
+RESEND_API_KEY=""          # Empty = emails logged to console; set to send via Resend
 ```

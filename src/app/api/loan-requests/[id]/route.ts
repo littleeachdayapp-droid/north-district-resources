@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { REQUEST_STATUSES } from "@/lib/constants";
+import { notifyRequestApproved, notifyRequestDenied, notifyRequestCancelled } from "@/lib/email";
 
 const updateRequestSchema = z.object({
   status: z.enum(REQUEST_STATUSES),
@@ -78,6 +79,8 @@ export async function PUT(
           return { request: updated, loan };
         });
 
+        notifyRequestApproved(id);
+
         return NextResponse.json(result);
       } else {
         // DENIED
@@ -88,6 +91,8 @@ export async function PUT(
             responseMessage: parsed.responseMessage || null,
           },
         });
+
+        notifyRequestDenied(id);
 
         return NextResponse.json(updated);
       }
@@ -104,6 +109,8 @@ export async function PUT(
           responseMessage: parsed.responseMessage || null,
         },
       });
+
+      notifyRequestCancelled(id);
 
       return NextResponse.json(updated);
     }
