@@ -50,6 +50,48 @@ interface ExistingTag {
   name: string;
 }
 
+// Alias maps: common alternate names → canonical enum values
+const SUBCATEGORY_ALIASES: Record<string, string> = {
+  // Music
+  CHORAL: "CHOIR_ANTHEM",
+  CHOIR: "CHOIR_ANTHEM",
+  ANTHEM: "CHOIR_ANTHEM",
+  BELL: "HANDBELL",
+  BELLS: "HANDBELL",
+  HANDBELLS: "HANDBELL",
+  HYMN: "HYMNAL",
+  HYMNBOOK: "HYMNAL",
+  SHEET: "SHEET_MUSIC",
+  SCORE: "SHEET_MUSIC",
+  TRACK: "ACCOMPANIMENT",
+  ACCOMPANIMENT_TRACK: "ACCOMPANIMENT",
+  OTHER: "OTHER_MUSIC",
+  // Study
+  BIBLE: "BIBLE_STUDY",
+  CURRICULUM: "CURRICULUM_KIT",
+  DVD: "DVD_VIDEO",
+  VIDEO: "DVD_VIDEO",
+  GUIDE: "LEADER_GUIDE",
+  YOUTH: "YOUTH_CURRICULUM",
+  CHILDREN: "CHILDREN_CURRICULUM",
+  KIDS: "CHILDREN_CURRICULUM",
+};
+
+const FORMAT_ALIASES: Record<string, string> = {
+  SHEET_MUSIC: "SHEET",
+  SCORE: "SHEET",
+  SHEETS: "SHEET",
+  DISC: "DVD",
+  VIDEO: "DVD",
+  AUDIO: "CD",
+  EBOOK: "DIGITAL",
+  PDF: "DIGITAL",
+  ONLINE: "DIGITAL",
+  BUNDLE: "KIT",
+  SET: "KIT",
+  MISC: "OTHER",
+};
+
 export function parseCSV(
   file: File
 ): Promise<{ rows: Record<string, string>[]; errors: string[] }> {
@@ -116,23 +158,25 @@ export function validateRow(
     errors.push("errorMissingTitle");
   }
 
-  // Subcategory — must match category
+  // Subcategory — must match category (with alias normalization)
   let subcategory: string | null = null;
   if (raw.subcategory && raw.category) {
     const allowed =
       SUBCATEGORIES_BY_CATEGORY[raw.category as Category] || [];
-    if (allowed.includes(raw.subcategory)) {
-      subcategory = raw.subcategory;
+    const normalized = SUBCATEGORY_ALIASES[raw.subcategory] || raw.subcategory;
+    if (allowed.includes(normalized)) {
+      subcategory = normalized;
     } else {
       errors.push("errorInvalidSubcategory");
     }
   }
 
-  // Format
+  // Format (with alias normalization)
   let format: string | null = null;
   if (raw.format) {
-    if ((FORMATS as readonly string[]).includes(raw.format)) {
-      format = raw.format;
+    const normalized = FORMAT_ALIASES[raw.format] || raw.format;
+    if ((FORMATS as readonly string[]).includes(normalized)) {
+      format = normalized;
     } else {
       errors.push("errorInvalidFormat");
     }
