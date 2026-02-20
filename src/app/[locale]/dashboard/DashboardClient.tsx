@@ -93,6 +93,7 @@ export function DashboardClient({
   const tL = useTranslations("loans");
   const tCat = useTranslations("categories");
   const tSub = useTranslations("subcategories");
+  const tActivity = useTranslations("activity");
   const router = useRouter();
   const isAdmin = user.role === "ADMIN";
 
@@ -184,6 +185,12 @@ export function DashboardClient({
               {t("adminPanel")}
             </Link>
           )}
+          <Link
+            href={"/dashboard/activity" as never}
+            className="inline-flex items-center gap-2 border border-primary-300 text-primary-700 px-4 py-2 rounded-md font-medium hover:bg-primary-50 transition-colors text-sm"
+          >
+            {tActivity("viewActivityLog")}
+          </Link>
           <Link
             href={"/dashboard/resources/new" as never}
             className="inline-flex items-center gap-2 bg-primary-700 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-800 transition-colors text-sm"

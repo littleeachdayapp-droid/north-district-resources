@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { logActivity } from "@/lib/activity-log";
 
 const createUserSchema = z.object({
   username: z
@@ -88,6 +89,14 @@ export async function POST(request: NextRequest) {
         church: { select: { id: true, name: true, nameEs: true } },
         createdAt: true,
       },
+    });
+
+    logActivity({
+      userId: user.id,
+      action: "CREATE_USER",
+      entityType: "User",
+      entityId: newUser.id,
+      details: `Created user "${newUser.displayName}" (${newUser.role})`,
     });
 
     return NextResponse.json(newUser, { status: 201 });

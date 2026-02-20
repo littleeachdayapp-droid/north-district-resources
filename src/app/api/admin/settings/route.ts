@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { logActivity } from "@/lib/activity-log";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -34,6 +35,14 @@ export async function PUT(request: NextRequest) {
       id: "singleton",
       emailNotifications: Boolean(body.emailNotifications),
     },
+  });
+
+  logActivity({
+    userId: user.id,
+    action: "UPDATE_SETTINGS",
+    entityType: "SiteSettings",
+    entityId: "singleton",
+    details: `Updated site settings`,
   });
 
   return NextResponse.json(settings);

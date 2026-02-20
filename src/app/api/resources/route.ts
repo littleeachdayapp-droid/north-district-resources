@@ -9,6 +9,7 @@ import {
   FORMATS,
   AVAILABILITY_STATUSES,
 } from "@/lib/constants";
+import { logActivity } from "@/lib/activity-log";
 
 const createResourceSchema = z.object({
   category: z.enum(CATEGORIES),
@@ -131,6 +132,14 @@ export async function POST(request: NextRequest) {
         church: { select: { id: true, name: true, nameEs: true, city: true } },
         tags: { include: { tag: true } },
       },
+    });
+
+    logActivity({
+      userId: user.id,
+      action: "CREATE_RESOURCE",
+      entityType: "Resource",
+      entityId: resource.id,
+      details: `Created resource "${parsed.title}"`,
     });
 
     return NextResponse.json(resource, { status: 201 });

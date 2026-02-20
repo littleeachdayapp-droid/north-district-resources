@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { notifyNewRequest } from "@/lib/email";
+import { logActivity } from "@/lib/activity-log";
 
 const createRequestSchema = z.object({
   resourceId: z.string().min(1),
@@ -143,6 +144,14 @@ export async function POST(request: NextRequest) {
           select: { id: true, name: true, nameEs: true },
         },
       },
+    });
+
+    logActivity({
+      userId: user.id,
+      action: "CREATE_LOAN_REQUEST",
+      entityType: "LoanRequest",
+      entityId: loanRequest.id,
+      details: `Requested loan for "${loanRequest.resource.title}"`,
     });
 
     notifyNewRequest(loanRequest.id);

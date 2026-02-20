@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { logActivity } from "@/lib/activity-log";
 
 const updateUserSchema = z.object({
   displayName: z.string().min(1).max(100).optional(),
@@ -80,6 +81,14 @@ export async function PUT(
         church: { select: { id: true, name: true, nameEs: true } },
         createdAt: true,
       },
+    });
+
+    logActivity({
+      userId: user.id,
+      action: "UPDATE_USER",
+      entityType: "User",
+      entityId: id,
+      details: `Updated user "${updated.displayName}"`,
     });
 
     return NextResponse.json(updated);

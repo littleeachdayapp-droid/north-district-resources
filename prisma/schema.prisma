@@ -86,6 +86,8 @@ model User {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  activityLogs ActivityLog[]
 }
 
 model LoanRequest {
@@ -132,4 +134,22 @@ model Loan {
 model SiteSettings {
   id                  String  @id @default("singleton")
   emailNotifications  Boolean @default(false)
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String   // CREATE_RESOURCE, UPDATE_RESOURCE, DELETE_RESOURCE,
+                      // CREATE_LOAN_REQUEST, APPROVE_REQUEST, DENY_REQUEST, CANCEL_REQUEST,
+                      // RETURN_LOAN, MARK_OVERDUE, MARK_LOST,
+                      // CREATE_USER, UPDATE_USER, CREATE_CHURCH, UPDATE_CHURCH, UPDATE_SETTINGS
+  entityType String   // Resource, LoanRequest, Loan, User, Church, SiteSettings
+  entityId   String
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }

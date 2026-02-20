@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { REQUEST_STATUSES } from "@/lib/constants";
 import { notifyRequestApproved, notifyRequestDenied, notifyRequestCancelled } from "@/lib/email";
+import { logActivity } from "@/lib/activity-log";
 
 const updateRequestSchema = z.object({
   status: z.enum(REQUEST_STATUSES),
@@ -24,7 +25,7 @@ export async function PUT(
   const loanRequest = await prisma.loanRequest.findUnique({
     where: { id },
     include: {
-      resource: { select: { id: true, churchId: true } },
+      resource: { select: { id: true, churchId: true, title: true } },
     },
   });
 
@@ -79,6 +80,14 @@ export async function PUT(
           return { request: updated, loan };
         });
 
+        logActivity({
+          userId: user.id,
+          action: "APPROVE_REQUEST",
+          entityType: "LoanRequest",
+          entityId: id,
+          details: `Approved loan request for "${loanRequest.resource.title}"`,
+        });
+
         notifyRequestApproved(id);
 
         return NextResponse.json(result);
@@ -90,6 +99,14 @@ export async function PUT(
             status: "DENIED",
             responseMessage: parsed.responseMessage || null,
           },
+        });
+
+        logActivity({
+          userId: user.id,
+          action: "DENY_REQUEST",
+          entityType: "LoanRequest",
+          entityId: id,
+          details: `Denied loan request for "${loanRequest.resource.title}"`,
         });
 
         notifyRequestDenied(id);
@@ -108,6 +125,14 @@ export async function PUT(
           status: "CANCELLED",
           responseMessage: parsed.responseMessage || null,
         },
+      });
+
+      logActivity({
+        userId: user.id,
+        action: "CANCEL_REQUEST",
+        entityType: "LoanRequest",
+        entityId: id,
+        details: `Cancelled loan request for "${loanRequest.resource.title}"`,
       });
 
       notifyRequestCancelled(id);

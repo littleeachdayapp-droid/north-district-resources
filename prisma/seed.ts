@@ -7,6 +7,7 @@ async function main() {
   console.log("Seeding database...");
 
   // Clean existing data
+  await prisma.activityLog.deleteMany();
   await prisma.siteSettings.deleteMany();
   await prisma.loan.deleteMany();
   await prisma.loanRequest.deleteMany();
@@ -547,7 +548,7 @@ async function main() {
   const passwordHash = hashSync("password123", 10);
   const adminHash = hashSync("admin123", 10);
 
-  await Promise.all([
+  const users = await Promise.all([
     prisma.user.create({
       data: {
         churchId: firstUMC.id,
@@ -593,6 +594,8 @@ async function main() {
       },
     }),
   ]);
+
+  const [editorFirst, editorCovenant, , , adminUser] = users;
 
   // === Sample Loans and Requests ===
   // Active loan: Grace borrows Disciple I from First UMC
@@ -665,12 +668,67 @@ async function main() {
     },
   });
 
+  // === Sample Activity Logs ===
+  await Promise.all([
+    prisma.activityLog.create({
+      data: {
+        userId: editorFirst.id,
+        action: "CREATE_RESOURCE",
+        entityType: "Resource",
+        entityId: resources[0].id,
+        details: 'Created resource "The United Methodist Hymnal"',
+        createdAt: new Date("2026-01-15T10:00:00Z"),
+      },
+    }),
+    prisma.activityLog.create({
+      data: {
+        userId: editorCovenant.id,
+        action: "CREATE_RESOURCE",
+        entityType: "Resource",
+        entityId: resources[2].id,
+        details: 'Created resource "Night of the Father\'s Love"',
+        createdAt: new Date("2026-01-16T14:30:00Z"),
+      },
+    }),
+    prisma.activityLog.create({
+      data: {
+        userId: adminUser.id,
+        action: "CREATE_CHURCH",
+        entityType: "Church",
+        entityId: firstUMC.id,
+        details: 'Created church "First UMC Austin"',
+        createdAt: new Date("2026-01-10T09:00:00Z"),
+      },
+    }),
+    prisma.activityLog.create({
+      data: {
+        userId: adminUser.id,
+        action: "APPROVE_REQUEST",
+        entityType: "LoanRequest",
+        entityId: activeRequest.id,
+        details: 'Approved loan request for "Disciple I: Becoming Disciples Through Bible Study"',
+        createdAt: new Date("2026-02-01T11:00:00Z"),
+      },
+    }),
+    prisma.activityLog.create({
+      data: {
+        userId: adminUser.id,
+        action: "UPDATE_SETTINGS",
+        entityType: "SiteSettings",
+        entityId: "singleton",
+        details: "Updated site settings",
+        createdAt: new Date("2026-02-10T08:00:00Z"),
+      },
+    }),
+  ]);
+
   console.log("Seed complete!");
   console.log(`  ${churches.length} churches`);
   console.log(`  ${tags.length} tags`);
   console.log(`  ${resources.length} resources`);
   console.log("  5 users");
   console.log("  3 loans + 2 loan requests");
+  console.log("  5 activity logs");
 }
 
 main()

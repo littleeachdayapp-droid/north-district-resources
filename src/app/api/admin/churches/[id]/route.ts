@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activity-log";
 
 const updateChurchSchema = z.object({
   name: z.string().min(1).max(200).optional(),
@@ -43,6 +44,14 @@ export async function PUT(
       include: {
         _count: { select: { resources: true, users: true } },
       },
+    });
+
+    logActivity({
+      userId: user.id,
+      action: "UPDATE_CHURCH",
+      entityType: "Church",
+      entityId: id,
+      details: `Updated church "${church.name}"`,
     });
 
     return NextResponse.json(church);

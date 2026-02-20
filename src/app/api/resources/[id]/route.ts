@@ -8,6 +8,7 @@ import {
   FORMATS,
   AVAILABILITY_STATUSES,
 } from "@/lib/constants";
+import { logActivity } from "@/lib/activity-log";
 
 const updateResourceSchema = z.object({
   category: z.enum(CATEGORIES).optional(),
@@ -109,6 +110,14 @@ export async function PUT(
       });
     });
 
+    logActivity({
+      userId: user.id,
+      action: "UPDATE_RESOURCE",
+      entityType: "Resource",
+      entityId: id,
+      details: `Updated resource "${updated.title}"`,
+    });
+
     return NextResponse.json(updated);
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -137,7 +146,7 @@ export async function DELETE(
 
   const resource = await prisma.resource.findUnique({
     where: { id },
-    select: { churchId: true },
+    select: { churchId: true, title: true },
   });
 
   if (!resource) {
@@ -150,6 +159,14 @@ export async function DELETE(
   }
 
   await prisma.resource.delete({ where: { id } });
+
+  logActivity({
+    userId: user.id,
+    action: "DELETE_RESOURCE",
+    entityType: "Resource",
+    entityId: id,
+    details: `Deleted resource "${resource.title}"`,
+  });
 
   return NextResponse.json({ success: true });
 }

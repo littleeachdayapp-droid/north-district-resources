@@ -16,6 +16,7 @@ interface AdminDashboardClientProps {
 
 export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
   const t = useTranslations("admin");
+  const tActivity = useTranslations("activity");
 
   const statCards = [
     { label: t("totalChurches"), value: stats.churches, color: "bg-blue-50 text-blue-700" },
@@ -72,6 +73,12 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
           className="inline-flex items-center justify-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-800 transition-colors"
         >
           {t("settings")}
+        </Link>
+        <Link
+          href={"/dashboard/activity" as never}
+          className="inline-flex items-center justify-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-800 transition-colors"
+        >
+          {tActivity("viewActivityLog")}
         </Link>
       </div>
     </div>

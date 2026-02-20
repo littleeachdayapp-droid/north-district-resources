@@ -30,6 +30,7 @@ src/
   app/
     [locale]/          # Locale-prefixed routes (en, es)
       dashboard/       # Auth-protected resource management
+        activity/      # Activity log page
       login/           # Login page
       music/           # Public music browse
       study/           # Public study browse
@@ -40,6 +41,7 @@ src/
       resources/       # GET (public), POST/PUT/DELETE (auth)
       churches/        # GET (public)
       tags/            # GET (public)
+      activity/        # GET activity log (auth, paginated)
   components/          # Client components (Navbar, ResourceForm, etc.)
   i18n/                # Routing, navigation, request config
   lib/
@@ -48,13 +50,14 @@ src/
     constants.ts       # Category/subcategory/format/role enums
     locale-utils.ts    # Bilingual field helper
     email.ts           # Resend email notifications for loan lifecycle
+    activity-log.ts    # Fire-and-forget activity logging helper
   proxy.ts             # Middleware: next-intl + dashboard route protection
 messages/
   en.json              # English translations
   es.json              # Spanish translations
 prisma/
-  schema.prisma        # 8 models: Church, Resource, Tag, ResourceTag, User, LoanRequest, Loan, SiteSettings
-  seed.ts              # 4 churches, 17 resources, 10 tags, 5 users, sample loans
+  schema.prisma        # 9 models: Church, Resource, Tag, ResourceTag, User, LoanRequest, Loan, SiteSettings, ActivityLog
+  seed.ts              # 4 churches, 17 resources, 10 tags, 5 users, sample loans, sample activity logs
 ```
 
 ## Database Models
@@ -65,6 +68,7 @@ prisma/
 - **User** — username, passwordHash, role (EDITOR|ADMIN), optional churchId
 - **LoanRequest** / **Loan** — inter-church resource lending workflow
 - **SiteSettings** — singleton settings (email notifications toggle)
+- **ActivityLog** — audit trail: userId, action, entityType, entityId, details, createdAt
 
 ## Auth
 
@@ -82,7 +86,7 @@ prisma/
 ## Conventions
 
 - All bilingual fields: `field` (English) + `fieldEs` (Spanish, nullable)
-- i18n keys organized by namespace: `common`, `home`, `resources`, `categories`, `subcategories`, `availability`, `formats`, `churches`, `auth`, `loans`, `admin`, `notifications`
+- i18n keys organized by namespace: `common`, `home`, `resources`, `categories`, `subcategories`, `availability`, `formats`, `churches`, `auth`, `loans`, `admin`, `activity`, `notifications`
 - Tailwind colors: `primary-*` (warm earth), `accent-*` (gold), `music-*` (green), `study-*` (slate)
 - API responses: `{ resources, pagination }` for lists; direct object for single items
 - Zod 4 validation on all write endpoints; error details via `err.issues`

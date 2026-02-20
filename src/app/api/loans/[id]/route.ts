@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { LOAN_STATUSES } from "@/lib/constants";
 import { notifyLoanReturned, notifyLoanOverdue, notifyLoanLost } from "@/lib/email";
+import { logActivity } from "@/lib/activity-log";
 
 const updateLoanSchema = z.object({
   status: z.enum(LOAN_STATUSES),
@@ -29,6 +30,7 @@ export async function PUT(
       resourceId: true,
       lendingChurchId: true,
       borrowingChurchId: true,
+      resource: { select: { title: true } },
     },
   });
 
@@ -73,6 +75,14 @@ export async function PUT(
         return updated;
       });
 
+      logActivity({
+        userId: user.id,
+        action: "RETURN_LOAN",
+        entityType: "Loan",
+        entityId: id,
+        details: `Returned loan for "${loan.resource.title}"`,
+      });
+
       notifyLoanReturned(id);
 
       return NextResponse.json(result);
@@ -83,6 +93,14 @@ export async function PUT(
           status: "OVERDUE",
           notes: parsed.notes || null,
         },
+      });
+
+      logActivity({
+        userId: user.id,
+        action: "MARK_OVERDUE",
+        entityType: "Loan",
+        entityId: id,
+        details: `Marked loan overdue for "${loan.resource.title}"`,
       });
 
       notifyLoanOverdue(id);
@@ -104,6 +122,14 @@ export async function PUT(
         });
 
         return updated;
+      });
+
+      logActivity({
+        userId: user.id,
+        action: "MARK_LOST",
+        entityType: "Loan",
+        entityId: id,
+        details: `Marked loan lost for "${loan.resource.title}"`,
       });
 
       notifyLoanLost(id);
