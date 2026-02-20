@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useAuth } from "./AuthProvider";
 
 export function Navbar() {
   const t = useTranslations("common");
+  const tAuth = useTranslations("auth");
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
@@ -16,6 +20,12 @@ export function Navbar() {
     { href: "/study" as const, label: t("study") },
     { href: "/churches" as const, label: t("churches") },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+    setMenuOpen(false);
+  };
 
   return (
     <nav className="bg-primary-800 text-white shadow-md">
@@ -40,6 +50,46 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="flex items-center gap-4">
+                    <Link
+                      href={"/dashboard" as never}
+                      className={`text-sm font-medium transition-colors hover:text-accent-300 ${
+                        pathname.startsWith("/dashboard")
+                          ? "text-accent-300 border-b-2 border-accent-400 pb-0.5"
+                          : "text-primary-100"
+                      }`}
+                    >
+                      {tAuth("dashboard")}
+                    </Link>
+                    <span className="text-xs text-primary-300">
+                      {user.displayName}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      className="text-sm font-medium text-primary-200 hover:text-accent-300 transition-colors"
+                    >
+                      {tAuth("logout")}
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href={"/login" as never}
+                    className={`text-sm font-medium transition-colors hover:text-accent-300 ${
+                      pathname === "/login"
+                        ? "text-accent-300 border-b-2 border-accent-400 pb-0.5"
+                        : "text-primary-100"
+                    }`}
+                  >
+                    {tAuth("login")}
+                  </Link>
+                )}
+              </>
+            )}
+
             <LanguageSwitcher />
           </div>
 
@@ -94,6 +144,47 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {!loading && (
+              <>
+                {user ? (
+                  <>
+                    <Link
+                      href={"/dashboard" as never}
+                      onClick={() => setMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                        pathname.startsWith("/dashboard")
+                          ? "bg-primary-700 text-accent-300"
+                          : "text-primary-100 hover:bg-primary-700"
+                      }`}
+                    >
+                      {tAuth("dashboard")}
+                    </Link>
+                    <div className="px-3 py-1 text-xs text-primary-300">
+                      {user.displayName}
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium text-primary-200 hover:bg-primary-700"
+                    >
+                      {tAuth("logout")}
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href={"/login" as never}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                      pathname === "/login"
+                        ? "bg-primary-700 text-accent-300"
+                        : "text-primary-100 hover:bg-primary-700"
+                    }`}
+                  >
+                    {tAuth("login")}
+                  </Link>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

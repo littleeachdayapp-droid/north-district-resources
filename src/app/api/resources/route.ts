@@ -1,6 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { getCurrentUser } from "@/lib/auth";
+import { z } from "zod";
+import {
+  CATEGORIES,
+  ALL_SUBCATEGORIES,
+  FORMATS,
+  AVAILABILITY_STATUSES,
+} from "@/lib/constants";
+
+const createResourceSchema = z.object({
+  category: z.enum(CATEGORIES),
+  title: z.string().min(1).max(500),
+  titleEs: z.string().max(500).optional().nullable(),
+  authorComposer: z.string().max(300).optional().nullable(),
+  publisher: z.string().max(300).optional().nullable(),
+  description: z.string().max(2000).optional().nullable(),
+  descriptionEs: z.string().max(2000).optional().nullable(),
+  subcategory: z.enum(ALL_SUBCATEGORIES).optional().nullable(),
+  format: z.enum(FORMATS).optional().nullable(),
+  quantity: z.number().int().min(1).default(1),
+  maxLoanWeeks: z.number().int().min(1).max(52).optional().nullable(),
+  availabilityStatus: z.enum(AVAILABILITY_STATUSES).default("AVAILABLE"),
+  availabilityNotes: z.string().max(500).optional().nullable(),
+  churchId: z.string().optional(),
+  tagIds: z.array(z.string()).optional(),
+});
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -64,4 +90,60 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     },
   });
+}
+
+export async function POST(request: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const parsed = createResourceSchema.parse(body);
+
+    // Determine churchId: editors use their own church, admins can specify
+    let churchId: string;
+    if (user.role === "ADMIN" && parsed.churchId) {
+      churchId = parsed.churchId;
+    } else if (user.churchId) {
+      churchId = user.churchId;
+    } else {
+      return NextResponse.json(
+        { error: "No church associated with user" },
+        { status: 400 }
+      );
+    }
+
+    const { tagIds, ...resourceData } = parsed;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { churchId: _ignoredChurchId, ...data } = resourceData;
+
+    const resource = await prisma.resource.create({
+      data: {
+        ...data,
+        churchId,
+        tags: tagIds?.length
+          ? { create: tagIds.map((tagId) => ({ tagId })) }
+          : undefined,
+      },
+      include: {
+        church: { select: { id: true, name: true, nameEs: true, city: true } },
+        tags: { include: { tag: true } },
+      },
+    });
+
+    return NextResponse.json(resource, { status: 201 });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: err.issues },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
