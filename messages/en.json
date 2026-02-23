@@ -33,7 +33,7 @@
     "notFound": "Not Found",
     "notFoundMessage": "The page you're looking for doesn't exist.",
     "goHome": "Go Home",
-    "footer": "MinistryShare Austin · Río Texas Conference · The United Methodist Church",
+    "footer": "MinistryShare Austin · Sharing church resources across Austin",
     "page": "Page",
     "of": "of",
     "previous": "Previous",
@@ -44,7 +44,7 @@
   },
   "home": {
     "heroTitle": "Share Music & Study Resources",
-    "heroSubtitle": "A collaborative platform for United Methodist churches in the Austin area to share hymnals, sheet music, Bible studies, and more.",
+    "heroSubtitle": "A collaborative platform for churches in the Austin area to share hymnals, sheet music, Bible studies, and more.",
     "browseMusic": "Browse Music Resources",
     "browseStudy": "Browse Study Resources",
     "musicDescription": "Hymnals, sheet music, cantatas, handbell music, choir anthems, and more.",
@@ -316,7 +316,7 @@
   "notifications": {
     "greeting": "Hello {churchName},",
     "viewDashboard": "View Dashboard",
-    "footer": "MinistryShare Austin · Río Texas Conference",
+    "footer": "MinistryShare Austin",
     "newRequestSubject": "New Loan Request for {resourceTitle}",
     "newRequestBody": "{requestingChurch} has requested to borrow \"{resourceTitle}\" from your church. Please log in to approve or deny this request.",
     "requestApprovedSubject": "Loan Request Approved: {resourceTitle}",

@@ -27,7 +27,7 @@ function buildEmailHtml(title: string, bodyLines: string[]): string {
       ${body}
     </div>
     <div style="padding:16px 24px;border-top:1px solid #e7e5e4;text-align:center">
-      <p style="margin:0;color:#a8a29e;font-size:12px">MinistryShare Austin &middot; R&iacute;o Texas Conference</p>
+      <p style="margin:0;color:#a8a29e;font-size:12px">MinistryShare Austin</p>
     </div>
   </div>
 </body>

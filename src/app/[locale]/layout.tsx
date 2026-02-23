@@ -24,7 +24,7 @@ export async function generateMetadata({
         : "MinistryShare Austin",
     description:
       locale === "es"
-        ? "Plataforma para compartir recursos entre iglesias Metodistas Unidas del área de Austin"
+        ? "Plataforma para compartir recursos entre iglesias del área de Austin"
         : "Church resource sharing platform for the Austin area",
   };
 }
