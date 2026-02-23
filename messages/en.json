@@ -52,6 +52,17 @@
     "recentResources": "Recently Added Resources",
     "viewChurches": "View Church Directory"
   },
+  "howItWorks": {
+    "sectionTitle": "How It Works",
+    "step1Title": "Churches Join & List Resources",
+    "step1Description": "Your church signs up and adds music, study materials, and more to the shared library.",
+    "step2Title": "Browse & Search",
+    "step2Description": "Find what you need by category, format, or keyword across all participating churches.",
+    "step3Title": "Request to Borrow",
+    "step3Description": "Submit a loan request directly through the platform. The owning church gets notified.",
+    "step4Title": "Coordinate & Return",
+    "step4Description": "Pick up the resource, use it, and return it when done. Everything is tracked automatically."
+  },
   "resources": {
     "musicResources": "Music Resources",
     "studyResources": "Study Resources",

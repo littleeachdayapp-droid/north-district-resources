@@ -14,6 +14,7 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tc = await getTranslations("common");
+  const tHow = await getTranslations("howItWorks");
 
   const recentResources = await prisma.resource.findMany({
     where: { availabilityStatus: "AVAILABLE" },
@@ -91,6 +92,31 @@ export default async function HomePage({
             />
           </svg>
         </Link>
+      </section>
+
+      {/* How It Works */}
+      <section className="max-w-5xl mx-auto px-4 mt-16">
+        <h2 className="text-2xl font-bold text-primary-800 mb-8 text-center">
+          {tHow("sectionTitle")}
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {([1, 2, 3, 4] as const).map((step) => (
+            <div
+              key={step}
+              className="bg-white rounded-xl shadow-sm border border-primary-200 p-6 text-center"
+            >
+              <div className="w-10 h-10 rounded-full bg-accent-500 text-white font-bold text-lg flex items-center justify-center mx-auto mb-4">
+                {step}
+              </div>
+              <h3 className="font-semibold text-primary-800 mb-2">
+                {tHow(`step${step}Title`)}
+              </h3>
+              <p className="text-sm text-primary-500">
+                {tHow(`step${step}Description`)}
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Recent Resources */}

@@ -52,6 +52,17 @@
     "recentResources": "Recursos Agregados Recientemente",
     "viewChurches": "Ver Directorio de Iglesias"
   },
+  "howItWorks": {
+    "sectionTitle": "Cómo Funciona",
+    "step1Title": "Iglesias se Unen y Publican Recursos",
+    "step1Description": "Tu iglesia se registra y agrega música, materiales de estudio y más a la biblioteca compartida.",
+    "step2Title": "Explora y Busca",
+    "step2Description": "Encuentra lo que necesitas por categoría, formato o palabra clave en todas las iglesias participantes.",
+    "step3Title": "Solicita un Préstamo",
+    "step3Description": "Envía una solicitud de préstamo directamente a través de la plataforma. La iglesia propietaria recibe una notificación.",
+    "step4Title": "Coordina y Devuelve",
+    "step4Description": "Recoge el recurso, úsalo y devuélvelo cuando termines. Todo se registra automáticamente."
+  },
   "resources": {
     "musicResources": "Recursos de Música",
     "studyResources": "Recursos de Estudio",
