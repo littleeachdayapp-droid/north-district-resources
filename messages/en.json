@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "North District Resource Sharing",
-    "tagline": "Sharing Resources Across the North District",
+    "appName": "MinistryShare Austin",
+    "tagline": "Sharing Church Resources Across Austin",
     "home": "Home",
     "music": "Music",
     "study": "Study",
@@ -33,7 +33,7 @@
     "notFound": "Not Found",
     "notFoundMessage": "The page you're looking for doesn't exist.",
     "goHome": "Go Home",
-    "footer": "North District · Río Texas Conference · The United Methodist Church",
+    "footer": "MinistryShare Austin · Río Texas Conference · The United Methodist Church",
     "page": "Page",
     "of": "of",
     "previous": "Previous",
@@ -44,7 +44,7 @@
   },
   "home": {
     "heroTitle": "Share Music & Study Resources",
-    "heroSubtitle": "A collaborative platform for United Methodist churches in the North District of the Río Texas Conference to share hymnals, sheet music, Bible studies, and more.",
+    "heroSubtitle": "A collaborative platform for United Methodist churches in the Austin area to share hymnals, sheet music, Bible studies, and more.",
     "browseMusic": "Browse Music Resources",
     "browseStudy": "Browse Study Resources",
     "musicDescription": "Hymnals, sheet music, cantatas, handbell music, choir anthems, and more.",
@@ -316,7 +316,7 @@
   "notifications": {
     "greeting": "Hello {churchName},",
     "viewDashboard": "View Dashboard",
-    "footer": "North District Resource Sharing · Río Texas Conference",
+    "footer": "MinistryShare Austin · Río Texas Conference",
     "newRequestSubject": "New Loan Request for {resourceTitle}",
     "newRequestBody": "{requestingChurch} has requested to borrow \"{resourceTitle}\" from your church. Please log in to approve or deny this request.",
     "requestApprovedSubject": "Loan Request Approved: {resourceTitle}",

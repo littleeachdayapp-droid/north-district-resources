@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Recursos del Distrito Norte",
-    "tagline": "Compartiendo Recursos en el Distrito Norte",
+    "appName": "MinistryShare Austin",
+    "tagline": "Compartiendo Recursos entre Iglesias de Austin",
     "home": "Inicio",
     "music": "Música",
     "study": "Estudio",
@@ -33,7 +33,7 @@
     "notFound": "No Encontrado",
     "notFoundMessage": "La página que buscas no existe.",
     "goHome": "Ir al inicio",
-    "footer": "Distrito Norte · Conferencia Río Texas · La Iglesia Metodista Unida",
+    "footer": "MinistryShare Austin · Conferencia Río Texas · La Iglesia Metodista Unida",
     "page": "Página",
     "of": "de",
     "previous": "Anterior",
@@ -44,7 +44,7 @@
   },
   "home": {
     "heroTitle": "Comparte Recursos de Música y Estudio",
-    "heroSubtitle": "Una plataforma colaborativa para las iglesias Metodistas Unidas del Distrito Norte de la Conferencia Río Texas para compartir himnarios, partituras, estudios bíblicos y más.",
+    "heroSubtitle": "Una plataforma colaborativa para las iglesias Metodistas Unidas del área de Austin para compartir himnarios, partituras, estudios bíblicos y más.",
     "browseMusic": "Ver Recursos de Música",
     "browseStudy": "Ver Recursos de Estudio",
     "musicDescription": "Himnarios, partituras, cantatas, música de campanas, himnos corales y más.",
@@ -316,7 +316,7 @@
   "notifications": {
     "greeting": "Hola {churchName},",
     "viewDashboard": "Ver Panel",
-    "footer": "Recursos del Distrito Norte · Conferencia Río Texas",
+    "footer": "MinistryShare Austin · Conferencia Río Texas",
     "newRequestSubject": "Nueva Solicitud de Préstamo: {resourceTitle}",
     "newRequestBody": "{requestingChurch} ha solicitado prestado \"{resourceTitle}\" de su iglesia. Inicie sesión para aprobar o rechazar esta solicitud.",
     "requestApprovedSubject": "Solicitud Aprobada: {resourceTitle}",

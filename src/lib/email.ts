@@ -6,7 +6,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM_EMAIL = "North District Resources <onboarding@resend.dev>";
+const FROM_EMAIL = "MinistryShare Austin <noreply@send.ministryshare.org>";
 
 // --- HTML builder ---
 
@@ -27,7 +27,7 @@ function buildEmailHtml(title: string, bodyLines: string[]): string {
       ${body}
     </div>
     <div style="padding:16px 24px;border-top:1px solid #e7e5e4;text-align:center">
-      <p style="margin:0;color:#a8a29e;font-size:12px">North District Resource Sharing &middot; R&iacute;o Texas Conference</p>
+      <p style="margin:0;color:#a8a29e;font-size:12px">MinistryShare Austin &middot; R&iacute;o Texas Conference</p>
     </div>
   </div>
 </body>

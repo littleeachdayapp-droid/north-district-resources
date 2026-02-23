@@ -20,12 +20,12 @@ export async function generateMetadata({
   return {
     title:
       locale === "es"
-        ? "Recursos del Distrito Norte"
-        : "North District Resource Sharing",
+        ? "MinistryShare Austin"
+        : "MinistryShare Austin",
     description:
       locale === "es"
-        ? "Plataforma para compartir recursos entre iglesias Metodistas Unidas del Distrito Norte"
-        : "Resource sharing platform for North District United Methodist churches",
+        ? "Plataforma para compartir recursos entre iglesias Metodistas Unidas del área de Austin"
+        : "Church resource sharing platform for the Austin area",
   };
 }
 
