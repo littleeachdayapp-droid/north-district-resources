@@ -108,8 +108,8 @@ After every successful `pnpm build`, commit all changes and push to origin.
 DATABASE_URL="file:./dev.db"           # Local SQLite for dev
 JWT_SECRET="change-in-production"
 RESEND_API_KEY=""                      # Empty = emails logged to console; set to send via Resend
-TURSO_DATABASE_URL=""                  # Production: libsql://... (set on Vercel)
-TURSO_AUTH_TOKEN=""                    # Production: Turso auth token (set on Vercel)
+TURSO_DATABASE_URL=""                  # Production: libsql://... (set on Vercel). Credentials stored in Ulysses.
+TURSO_AUTH_TOKEN=""                    # Production: Turso auth token (set on Vercel). Credentials stored in Ulysses.
 ```
 
 ## Deployment
