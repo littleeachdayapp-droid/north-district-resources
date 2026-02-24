@@ -11,6 +11,7 @@ interface AdminDashboardClientProps {
     resources: number;
     activeLoans: number;
     pendingRequests: number;
+    pendingRegistrations: number;
   };
 }
 
@@ -24,6 +25,7 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
     { label: t("totalResources"), value: stats.resources, color: "bg-purple-50 text-purple-700" },
     { label: t("activeLoans"), value: stats.activeLoans, color: "bg-orange-50 text-orange-700" },
     { label: t("pendingRequests"), value: stats.pendingRequests, color: "bg-yellow-50 text-yellow-700" },
+    { label: t("pendingRegistrations"), value: stats.pendingRegistrations, color: "bg-red-50 text-red-700" },
   ];
 
   return (
@@ -67,6 +69,17 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
           className="inline-flex items-center justify-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-800 transition-colors"
         >
           {t("manageChurches")}
+        </Link>
+        <Link
+          href={"/dashboard/admin/registrations" as never}
+          className="inline-flex items-center justify-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-800 transition-colors"
+        >
+          {t("pendingRegistrations")}
+          {stats.pendingRegistrations > 0 && (
+            <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              {stats.pendingRegistrations}
+            </span>
+          )}
         </Link>
         <Link
           href={"/dashboard/admin/settings" as never}

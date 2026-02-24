@@ -17,6 +17,7 @@ interface ChurchItem {
   pastor: string | null;
   notes: string | null;
   isActive: boolean;
+  registrationStatus: string;
   _count: { resources: number; users: number };
 }
 
@@ -382,6 +383,9 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
                   {t("userCount")}
                 </th>
                 <th className="py-3 pr-4 font-medium">Status</th>
+                <th className="py-3 pr-4 font-medium hidden sm:table-cell">
+                  {t("registrationStatus")}
+                </th>
                 <th className="py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -392,7 +396,7 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
                   className="border-b border-primary-100 hover:bg-primary-50"
                 >
                   {editingId === church.id ? (
-                    <td colSpan={8} className="py-3">
+                    <td colSpan={9} className="py-3">
                       <form
                         onSubmit={handleEdit}
                         className="space-y-4 p-3 bg-primary-50 rounded-lg"
@@ -445,6 +449,19 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
                           }`}
                         >
                           {church.isActive ? t("active") : t("inactive")}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-4 hidden sm:table-cell">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                            church.registrationStatus === "APPROVED"
+                              ? "bg-green-100 text-green-700"
+                              : church.registrationStatus === "PENDING"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {t(church.registrationStatus as "PENDING" | "APPROVED" | "REJECTED")}
                         </span>
                       </td>
                       <td className="py-3 text-right space-x-2">

@@ -72,3 +72,6 @@ export const REQUEST_STATUSES = [
 ] as const;
 
 export const TAG_CATEGORIES = ["MUSIC", "STUDY", "BOTH"] as const;
+
+export const CHURCH_STATUSES = ["PENDING", "APPROVED", "REJECTED"] as const;
+export type ChurchStatus = (typeof CHURCH_STATUSES)[number];

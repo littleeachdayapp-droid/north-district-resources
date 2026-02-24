@@ -8,13 +8,14 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const [churches, users, resources, activeLoans, pendingRequests] =
+  const [churches, users, resources, activeLoans, pendingRequests, pendingRegistrations] =
     await Promise.all([
       prisma.church.count(),
       prisma.user.count(),
       prisma.resource.count(),
       prisma.loan.count({ where: { status: { in: ["ACTIVE", "OVERDUE"] } } }),
       prisma.loanRequest.count({ where: { status: "PENDING" } }),
+      prisma.church.count({ where: { registrationStatus: "PENDING" } }),
     ]);
 
   return NextResponse.json({
@@ -23,5 +24,6 @@ export async function GET() {
     resources,
     activeLoans,
     pendingRequests,
+    pendingRegistrations,
   });
 }

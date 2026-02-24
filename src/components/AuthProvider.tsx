@@ -22,7 +22,7 @@ interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<{ error?: string }>;
+  login: (username: string, password: string) => Promise<{ error?: string; code?: string }>;
   logout: () => Promise<void>;
 }
 
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!res.ok) {
         const data = await res.json();
-        return { error: data.error || "Login failed" };
+        return { error: data.error || "Login failed", code: data.code };
       }
 
       const data = await res.json();

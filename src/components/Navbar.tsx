@@ -9,6 +9,7 @@ import { useAuth } from "./AuthProvider";
 export function Navbar() {
   const t = useTranslations("common");
   const tAuth = useTranslations("auth");
+  const tReg = useTranslations("registration");
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
@@ -76,16 +77,28 @@ export function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <Link
-                    href={"/login" as never}
-                    className={`text-sm font-medium transition-colors hover:text-accent-300 ${
-                      pathname === "/login"
-                        ? "text-accent-300 border-b-2 border-accent-400 pb-0.5"
-                        : "text-primary-100"
-                    }`}
-                  >
-                    {tAuth("login")}
-                  </Link>
+                  <>
+                    <Link
+                      href={"/register" as never}
+                      className={`text-sm font-medium transition-colors hover:text-accent-300 ${
+                        pathname.startsWith("/register")
+                          ? "text-accent-300 border-b-2 border-accent-400 pb-0.5"
+                          : "text-primary-100"
+                      }`}
+                    >
+                      {tReg("register")}
+                    </Link>
+                    <Link
+                      href={"/login" as never}
+                      className={`text-sm font-medium transition-colors hover:text-accent-300 ${
+                        pathname === "/login"
+                          ? "text-accent-300 border-b-2 border-accent-400 pb-0.5"
+                          : "text-primary-100"
+                      }`}
+                    >
+                      {tAuth("login")}
+                    </Link>
+                  </>
                 )}
               </>
             )}
@@ -172,17 +185,30 @@ export function Navbar() {
                     </button>
                   </>
                 ) : (
-                  <Link
-                    href={"/login" as never}
-                    onClick={() => setMenuOpen(false)}
-                    className={`block px-3 py-2 rounded-md text-sm font-medium ${
-                      pathname === "/login"
-                        ? "bg-primary-700 text-accent-300"
-                        : "text-primary-100 hover:bg-primary-700"
-                    }`}
-                  >
-                    {tAuth("login")}
-                  </Link>
+                  <>
+                    <Link
+                      href={"/register" as never}
+                      onClick={() => setMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                        pathname.startsWith("/register")
+                          ? "bg-primary-700 text-accent-300"
+                          : "text-primary-100 hover:bg-primary-700"
+                      }`}
+                    >
+                      {tReg("register")}
+                    </Link>
+                    <Link
+                      href={"/login" as never}
+                      onClick={() => setMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                        pathname === "/login"
+                          ? "bg-primary-700 text-accent-300"
+                          : "text-primary-100 hover:bg-primary-700"
+                      }`}
+                    >
+                      {tAuth("login")}
+                    </Link>
+                  </>
                 )}
               </>
             )}

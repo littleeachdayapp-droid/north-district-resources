@@ -5,19 +5,20 @@ import { AdminDashboardClient } from "./AdminDashboardClient";
 export default async function AdminPage() {
   const user = await requireRole("ADMIN");
 
-  const [churches, users, resources, activeLoans, pendingRequests] =
+  const [churches, users, resources, activeLoans, pendingRequests, pendingRegistrations] =
     await Promise.all([
       prisma.church.count(),
       prisma.user.count(),
       prisma.resource.count(),
       prisma.loan.count({ where: { status: { in: ["ACTIVE", "OVERDUE"] } } }),
       prisma.loanRequest.count({ where: { status: "PENDING" } }),
+      prisma.church.count({ where: { registrationStatus: "PENDING" } }),
     ]);
 
   return (
     <AdminDashboardClient
       user={{ displayName: user.displayName }}
-      stats={{ churches, users, resources, activeLoans, pendingRequests }}
+      stats={{ churches, users, resources, activeLoans, pendingRequests, pendingRegistrations }}
     />
   );
 }

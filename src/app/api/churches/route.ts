@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const churches = await prisma.church.findMany({
-    where: { isActive: true },
+    where: { isActive: true, registrationStatus: "APPROVED" },
     include: {
       _count: { select: { resources: true } },
     },

@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { Resend } from "resend";
 import { prisma } from "./prisma";
 
@@ -62,6 +63,155 @@ async function sendNotification(to: string, subject: string, html: string): Prom
   } catch (err) {
     console.error("[Email] Failed to send notification:", err);
   }
+}
+
+// --- Direct send (bypasses isEmailEnabled — for registration emails that must always send) ---
+
+async function sendDirect(to: string, subject: string, html: string): Promise<void> {
+  try {
+    if (resend) {
+      await resend.emails.send({ from: FROM_EMAIL, to, subject, html });
+    } else {
+      console.log(`[Email] To: ${to} | Subject: ${subject}`);
+    }
+  } catch (err) {
+    console.error("[Email] Failed to send:", err);
+  }
+}
+
+// --- Token helper ---
+
+export function generateVerificationToken(): { token: string; expiry: Date } {
+  const token = crypto.randomUUID();
+  const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  return { token, expiry };
+}
+
+// --- Registration email functions ---
+
+export function sendVerificationEmail(to: string, token: string, locale: string): void {
+  void (async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.ministryshare.org";
+      const link = `${baseUrl}/${locale}/verify-email?token=${token}`;
+      const subject = locale === "es"
+        ? "Verifica tu correo electrónico — MinistryShare Austin"
+        : "Verify your email — MinistryShare Austin";
+      const html = buildEmailHtml(
+        locale === "es" ? "Verificar Correo" : "Verify Email",
+        [
+          locale === "es"
+            ? "Gracias por registrarte en MinistryShare Austin."
+            : "Thank you for registering with MinistryShare Austin.",
+          locale === "es"
+            ? `<a href="${link}" style="display:inline-block;padding:10px 20px;background:#78716c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Verificar correo</a>`
+            : `<a href="${link}" style="display:inline-block;padding:10px 20px;background:#78716c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Verify email</a>`,
+          locale === "es"
+            ? "Este enlace expira en 24 horas."
+            : "This link expires in 24 hours.",
+        ]
+      );
+      await sendDirect(to, subject, html);
+    } catch (err) {
+      console.error("[Email] sendVerificationEmail error:", err);
+    }
+  })();
+}
+
+export function notifyAdminNewRegistration(churchId: string): void {
+  void (async () => {
+    try {
+      const church = await prisma.church.findUnique({
+        where: { id: churchId },
+        select: { name: true },
+      });
+      if (!church) return;
+
+      const admins = await prisma.user.findMany({
+        where: { role: "ADMIN", isActive: true, email: { not: null } },
+        select: { email: true },
+      });
+
+      const subject = `New Church Registration: ${church.name}`;
+      const html = buildEmailHtml("New Church Registration", [
+        `A new church <strong>${church.name}</strong> has registered and is awaiting approval.`,
+        "Please log in to the admin dashboard to review this registration.",
+      ]);
+
+      for (const admin of admins) {
+        if (admin.email) {
+          await sendDirect(admin.email, subject, html);
+        }
+      }
+    } catch (err) {
+      console.error("[Email] notifyAdminNewRegistration error:", err);
+    }
+  })();
+}
+
+export function notifyChurchApproved(churchId: string): void {
+  void (async () => {
+    try {
+      const church = await prisma.church.findUnique({
+        where: { id: churchId },
+        include: {
+          users: {
+            where: { email: { not: null } },
+            select: { email: true, displayName: true },
+            take: 1,
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      });
+      if (!church || church.users.length === 0 || !church.users[0].email) return;
+
+      const user = church.users[0];
+      const subject = `Your church has been approved — MinistryShare Austin`;
+      const html = buildEmailHtml("Church Approved", [
+        `Hello ${user.displayName},`,
+        `Great news! <strong>${church.name}</strong> has been approved on MinistryShare Austin.`,
+        "You can now log in and start sharing resources with other churches.",
+      ]);
+      await sendDirect(user.email!, subject, html);
+    } catch (err) {
+      console.error("[Email] notifyChurchApproved error:", err);
+    }
+  })();
+}
+
+export function notifyChurchRejected(churchId: string, reason?: string): void {
+  void (async () => {
+    try {
+      const church = await prisma.church.findUnique({
+        where: { id: churchId },
+        include: {
+          users: {
+            where: { email: { not: null } },
+            select: { email: true, displayName: true },
+            take: 1,
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      });
+      if (!church || church.users.length === 0 || !church.users[0].email) return;
+
+      const user = church.users[0];
+      const subject = `Church registration update — MinistryShare Austin`;
+      const lines = [
+        `Hello ${user.displayName},`,
+        `We were unable to approve <strong>${church.name}</strong> on MinistryShare Austin at this time.`,
+      ];
+      if (reason) {
+        lines.push(`Reason: ${reason}`);
+      }
+      lines.push("If you have questions, please contact us.");
+
+      const html = buildEmailHtml("Registration Update", lines);
+      await sendDirect(user.email!, subject, html);
+    } catch (err) {
+      console.error("[Email] notifyChurchRejected error:", err);
+    }
+  })();
 }
 
 // --- Notification functions ---

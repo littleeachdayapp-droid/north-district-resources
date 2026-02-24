@@ -68,6 +68,8 @@ export async function getCurrentUser() {
       displayName: true,
       role: true,
       churchId: true,
+      email: true,
+      emailVerified: true,
       church: { select: { id: true, name: true, nameEs: true } },
     },
   });

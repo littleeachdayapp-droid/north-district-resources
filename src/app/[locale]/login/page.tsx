@@ -3,10 +3,12 @@
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/components/AuthProvider";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
+  const tReg = useTranslations("registration");
   const router = useRouter();
   const { login, user } = useAuth();
   const [username, setUsername] = useState("");
@@ -27,7 +29,15 @@ export default function LoginPage() {
 
     const result = await login(username, password);
     if (result.error) {
-      setError(t("invalidCredentials"));
+      if (result.code === "EMAIL_NOT_VERIFIED") {
+        setError(tReg("emailNotVerified"));
+      } else if (result.code === "CHURCH_PENDING") {
+        setError(tReg("churchPending"));
+      } else if (result.code === "CHURCH_REJECTED") {
+        setError(tReg("churchRejected"));
+      } else {
+        setError(t("invalidCredentials"));
+      }
       setSubmitting(false);
     } else {
       router.push("/dashboard" as never);
@@ -92,6 +102,18 @@ export default function LoginPage() {
             {submitting ? "..." : t("loginButton")}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-primary-600">
+            {tReg("dontHaveAccount")}{" "}
+            <Link
+              href={"/register" as never}
+              className="text-accent-600 hover:text-accent-700 font-medium"
+            >
+              {tReg("register")}
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

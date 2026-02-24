@@ -18,10 +18,12 @@ model Church {
   phone     String?
   email     String?
   pastor    String?
-  notes     String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  notes              String?
+  isActive           Boolean  @default(true)
+  registrationStatus String   @default("APPROVED") // PENDING | APPROVED | REJECTED
+  rejectionReason    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   resources     Resource[]
   users         User[]
@@ -79,13 +81,17 @@ model User {
   id           String   @id @default(cuid())
   churchId     String?
   church       Church?  @relation(fields: [churchId], references: [id])
-  username     String   @unique
-  passwordHash String
-  displayName  String
-  role         String   @default("EDITOR") // EDITOR | ADMIN
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  username           String    @unique
+  passwordHash       String
+  displayName        String
+  email              String?   @unique
+  emailVerified      Boolean   @default(false)
+  verificationToken  String?   @unique
+  verificationExpiry DateTime?
+  role               String    @default("EDITOR") // EDITOR | ADMIN
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   activityLogs ActivityLog[]
 }
