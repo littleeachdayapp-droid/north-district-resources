@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import {
   CATEGORIES,
   FORMATS,
@@ -286,24 +286,34 @@ export async function parseXLSX(
 ): Promise<{ rows: Record<string, string>[]; errors: string[] }> {
   try {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    if (!sheetName) {
+    const workbook = new ExcelJS.Workbook();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await workbook.xlsx.load(Buffer.from(buffer) as any);
+
+    const sheet = workbook.worksheets[0];
+    if (!sheet || sheet.rowCount === 0) {
       return { rows: [], errors: ["No sheets found in workbook."] };
     }
-    const sheet = workbook.Sheets[sheetName];
-    const jsonRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-      defval: "",
+
+    // Extract headers from first row
+    const headerRow = sheet.getRow(1);
+    const headers: string[] = [];
+    headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      headers[colNumber - 1] = normalizeHeader(String(cell.value ?? ""));
     });
 
-    // Convert all values to strings and normalize headers
-    const rows: Record<string, string>[] = jsonRows.map((row) => {
-      const stringRow: Record<string, string> = {};
-      for (const [key, value] of Object.entries(row)) {
-        stringRow[normalizeHeader(key)] = value == null ? "" : String(value);
+    // Parse remaining rows into objects
+    const rows: Record<string, string>[] = [];
+    for (let r = 2; r <= sheet.rowCount; r++) {
+      const row = sheet.getRow(r);
+      if (!row.hasValues) continue;
+      const obj: Record<string, string> = {};
+      for (let c = 0; c < headers.length; c++) {
+        const val = row.getCell(c + 1).value;
+        obj[headers[c]] = val != null ? String(val) : "";
       }
-      return stringRow;
-    });
+      rows.push(obj);
+    }
 
     return { rows, errors: [] };
   } catch {
@@ -311,87 +321,52 @@ export async function parseXLSX(
   }
 }
 
-export function generateExcelTemplate(category?: string): ArrayBuffer {
+export async function generateExcelTemplate(category?: string): Promise<ArrayBuffer> {
   const headers = [...CSV_COLUMNS];
 
   const exampleRows =
     category === "STUDY"
       ? [
-          {
-            category: "STUDY",
-            title: "Disciple Bible Study",
-            titleEs: "",
-            authorComposer: "John Smith",
-            publisher: "Cokesbury",
-            description: "A comprehensive Bible study",
-            descriptionEs: "",
-            subcategory: "BIBLE_STUDY",
-            format: "BOOK",
-            quantity: 5,
-            maxLoanWeeks: 4,
-            tags: "Bible Study",
-          },
-          {
-            category: "STUDY",
-            title: "Short-Term Disciple",
-            titleEs: "",
-            authorComposer: "Various",
-            publisher: "Abingdon",
-            description: "6-week Bible study overview",
-            descriptionEs: "",
-            subcategory: "BIBLE_STUDY",
-            format: "KIT",
-            quantity: 3,
-            maxLoanWeeks: 6,
-            tags: "Bible Study",
-          },
+          ["STUDY", "Disciple Bible Study", "", "John Smith", "Cokesbury", "A comprehensive Bible study", "", "BIBLE_STUDY", "BOOK", 5, 4, "Bible Study"],
+          ["STUDY", "Short-Term Disciple", "", "Various", "Abingdon", "6-week Bible study overview", "", "BIBLE_STUDY", "KIT", 3, 6, "Bible Study"],
         ]
       : [
-          {
-            category: "MUSIC",
-            title: "The Faith We Sing",
-            titleEs: "",
-            authorComposer: "",
-            publisher: "",
-            description: "Hymnal supplement",
-            descriptionEs: "",
-            subcategory: "HYMNAL",
-            format: "BOOK",
-            quantity: 10,
-            maxLoanWeeks: 4,
-            tags: "Contemporary",
-          },
-          {
-            category: category === "MUSIC" ? "MUSIC" : "STUDY",
-            title:
-              category === "MUSIC"
-                ? "Handel's Messiah"
-                : "Short-Term Disciple",
-            titleEs: "",
-            authorComposer: category === "MUSIC" ? "G.F. Handel" : "Various",
-            publisher: category === "MUSIC" ? "" : "Abingdon",
-            description:
-              category === "MUSIC"
-                ? "Complete cantata score"
-                : "6-week Bible study overview",
-            descriptionEs: "",
-            subcategory: category === "MUSIC" ? "CANTATA" : "BIBLE_STUDY",
-            format: category === "MUSIC" ? "SHEET" : "KIT",
-            quantity: category === "MUSIC" ? 2 : 3,
-            maxLoanWeeks: category === "MUSIC" ? 8 : 6,
-            tags: "",
-          },
+          ["MUSIC", "The Faith We Sing", "", "", "", "Hymnal supplement", "", "HYMNAL", "BOOK", 10, 4, "Contemporary"],
+          [
+            category === "MUSIC" ? "MUSIC" : "STUDY",
+            category === "MUSIC" ? "Handel's Messiah" : "Short-Term Disciple",
+            "",
+            category === "MUSIC" ? "G.F. Handel" : "Various",
+            category === "MUSIC" ? "" : "Abingdon",
+            category === "MUSIC" ? "Complete cantata score" : "6-week Bible study overview",
+            "",
+            category === "MUSIC" ? "CANTATA" : "BIBLE_STUDY",
+            category === "MUSIC" ? "SHEET" : "KIT",
+            category === "MUSIC" ? 2 : 3,
+            category === "MUSIC" ? 8 : 6,
+            "",
+          ],
         ];
 
-  const worksheet = XLSX.utils.json_to_sheet(exampleRows, { header: headers });
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Resources");
 
-  // Set column widths for readability
-  worksheet["!cols"] = headers.map((h) => ({
-    wch: Math.max(h.length + 2, 14),
+  // Add header row
+  sheet.addRow(headers);
+
+  // Set column widths
+  sheet.columns = headers.map((h) => ({
+    width: Math.max(h.length + 2, 14),
   }));
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Resources");
+  // Bold header row
+  sheet.getRow(1).font = { bold: true };
 
-  return XLSX.write(workbook, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
+  // Add data rows
+  for (const row of exampleRows) {
+    sheet.addRow(row);
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return buffer as ArrayBuffer;
 }

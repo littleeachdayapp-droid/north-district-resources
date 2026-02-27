@@ -62,8 +62,8 @@ export function BulkImportClient({
     URL.revokeObjectURL(url);
   };
 
-  const handleDownloadExcelTemplate = () => {
-    const data = generateExcelTemplate();
+  const handleDownloadExcelTemplate = async () => {
+    const data = await generateExcelTemplate();
     const blob = new Blob([data], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
