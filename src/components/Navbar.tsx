@@ -113,6 +113,7 @@ export function Navbar() {
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-md hover:bg-primary-700"
               aria-label="Toggle menu"
+              aria-expanded={menuOpen}
             >
               <svg
                 className="w-6 h-6"

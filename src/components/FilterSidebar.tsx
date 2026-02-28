@@ -208,6 +208,8 @@ export function FilterSidebar({ category, tags, churches }: FilterSidebarProps) 
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
         className="lg:hidden mb-4 flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-800"
+        aria-label="Toggle filters"
+        aria-expanded={mobileOpen}
       >
         <svg
           className="w-4 h-4"
