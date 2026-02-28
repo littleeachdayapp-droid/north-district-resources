@@ -1,8 +1,25 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { ChurchCard } from "@/components/ChurchCard";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations("churches");
+  return {
+    title: t("churchDirectory"),
+    description:
+      locale === "es"
+        ? "Iglesias participantes en la red de MinistryShare Austin"
+        : "Participating churches in the MinistryShare Austin network",
+  };
+}
 
 export default async function ChurchesPage({
   params,

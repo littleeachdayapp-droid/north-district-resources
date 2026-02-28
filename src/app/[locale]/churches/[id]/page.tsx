@@ -1,9 +1,31 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { localizedField } from "@/lib/locale-utils";
 import { ResourceCard } from "@/components/ResourceCard";
 import { Link } from "@/i18n/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  const church = await prisma.church.findUnique({
+    where: { id },
+    select: { name: true, nameEs: true, city: true },
+  });
+  if (!church) return {};
+  const name = localizedField(locale, church.name, church.nameEs);
+  return {
+    title: name,
+    description:
+      locale === "es"
+        ? `Recursos compartidos de ${name}${church.city ? `, ${church.city}` : ""}`
+        : `Shared resources from ${name}${church.city ? `, ${church.city}` : ""}`,
+  };
+}
 
 export default async function ChurchProfilePage({
   params,

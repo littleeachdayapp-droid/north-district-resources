@@ -22,10 +22,10 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   return {
-    title:
-      locale === "es"
-        ? "MinistryShare Austin"
-        : "MinistryShare Austin",
+    title: {
+      default: "MinistryShare Austin",
+      template: "%s | MinistryShare Austin",
+    },
     description:
       locale === "es"
         ? "Plataforma para compartir recursos entre iglesias del área de Austin"

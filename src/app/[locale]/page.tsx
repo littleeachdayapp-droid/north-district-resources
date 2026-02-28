@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { ResourceCard } from "@/components/ResourceCard";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations("home");
+  return {
+    title: t("heroTitle"),
+    description: t("heroSubtitle"),
+  };
+}
 
 export default async function HomePage({
   params,

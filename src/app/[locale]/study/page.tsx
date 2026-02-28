@@ -1,5 +1,20 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ResourceListPage } from "@/components/ResourceListPage";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations("resources");
+  const tHome = await getTranslations("home");
+  return {
+    title: t("studyResources"),
+    description: tHome("studyDescription"),
+  };
+}
 
 export default async function StudyPage({
   params,

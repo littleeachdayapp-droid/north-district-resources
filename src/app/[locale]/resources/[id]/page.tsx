@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
@@ -5,6 +6,39 @@ import { localizedField } from "@/lib/locale-utils";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 import { RequestLoanButton } from "@/components/RequestLoanButton";
 import { Link } from "@/i18n/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  const resource = await prisma.resource.findUnique({
+    where: { id },
+    select: {
+      title: true,
+      titleEs: true,
+      description: true,
+      descriptionEs: true,
+      authorComposer: true,
+    },
+  });
+  if (!resource) return {};
+  const title = localizedField(locale, resource.title, resource.titleEs);
+  const desc = localizedField(
+    locale,
+    resource.description,
+    resource.descriptionEs
+  );
+  return {
+    title,
+    description:
+      desc ||
+      (resource.authorComposer
+        ? `${title} — ${resource.authorComposer}`
+        : undefined),
+  };
+}
 
 export default async function ResourceDetailPage({
   params,
