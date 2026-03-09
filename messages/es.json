@@ -310,7 +310,13 @@
     "registrationDate": "Fecha",
     "noPendingRegistrations": "No hay registros pendientes.",
     "approving": "Aprobando...",
-    "rejecting": "Rechazando..."
+    "rejecting": "Rechazando...",
+    "invite": "Invitar",
+    "inviteUser": "Invitar usuario a",
+    "inviteEmailPlaceholder": "correo@ejemplo.com",
+    "sendInvite": "Enviar Invitación",
+    "sending": "Enviando...",
+    "inviteSent": "Invitación enviada exitosamente."
   },
   "activity": {
     "activityLog": "Registro de Actividad",
@@ -330,6 +336,7 @@
     "CREATE_CHURCH": "Iglesia Creada",
     "UPDATE_CHURCH": "Iglesia Actualizada",
     "UPDATE_SETTINGS": "Ajustes Actualizados",
+    "INVITE_USER": "Usuario Invitado",
     "allActions": "Todas las Acciones",
     "allTypes": "Todos los Tipos",
     "user": "Usuario",
@@ -407,7 +414,14 @@
     "resendRateLimited": "Por favor espera antes de solicitar otro correo.",
     "emailNotVerified": "Por favor verifica tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.",
     "churchPending": "El registro de tu iglesia aún está siendo revisado. Recibirás un correo cuando sea aprobado.",
-    "churchRejected": "El registro de tu iglesia no fue aprobado. Revisa tu correo para más detalles."
+    "churchRejected": "El registro de tu iglesia no fue aprobado. Revisa tu correo para más detalles.",
+    "inviteTitle": "Aceptar Invitación",
+    "inviteSubtitle": "Has sido invitado/a a administrar los recursos de {church}.",
+    "inviteAccept": "Crear Cuenta y Unirme",
+    "inviteInvalid": "Invitación No Válida",
+    "inviteSuccessTitle": "¡Cuenta Creada!",
+    "inviteSuccessMessage": "Ahora eres parte de {church}. Puedes iniciar sesión y empezar a administrar recursos.",
+    "validatingInvite": "Validando invitación..."
   },
   "bulkImport": {
     "pageTitle": "Importar Recursos en Lote",

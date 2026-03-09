@@ -214,6 +214,37 @@ export function notifyChurchRejected(churchId: string, reason?: string): void {
   })();
 }
 
+// --- Invite email ---
+
+export function sendChurchInvite(to: string, token: string, churchName: string, locale: string): void {
+  void (async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.ministryshare.org";
+      const link = `${baseUrl}/${locale}/register/invite?token=${token}`;
+      const subject = locale === "es"
+        ? `Invitación para unirte a ${churchName} en MinistryShare Austin`
+        : `You're invited to join ${churchName} on MinistryShare Austin`;
+      const html = buildEmailHtml(
+        locale === "es" ? "Invitación de Iglesia" : "Church Invitation",
+        [
+          locale === "es"
+            ? `Has sido invitado/a a administrar los recursos de <strong>${churchName}</strong> en MinistryShare Austin.`
+            : `You've been invited to manage resources for <strong>${churchName}</strong> on MinistryShare Austin.`,
+          locale === "es"
+            ? `<a href="${link}" style="display:inline-block;padding:10px 20px;background:#78716c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Aceptar invitación</a>`
+            : `<a href="${link}" style="display:inline-block;padding:10px 20px;background:#78716c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Accept invitation</a>`,
+          locale === "es"
+            ? "Este enlace expira en 7 días."
+            : "This link expires in 7 days.",
+        ]
+      );
+      await sendDirect(to, subject, html);
+    } catch (err) {
+      console.error("[Email] sendChurchInvite error:", err);
+    }
+  })();
+}
+
 // --- Notification functions ---
 
 export function notifyNewRequest(requestId: string): void {

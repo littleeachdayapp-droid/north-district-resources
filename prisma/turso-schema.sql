@@ -12,6 +12,8 @@ CREATE TABLE "Church" (
     "pastor" TEXT,
     "notes" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "registrationStatus" TEXT NOT NULL DEFAULT 'APPROVED',
+    "rejectionReason" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -63,6 +65,10 @@ CREATE TABLE "User" (
     "username" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
+    "email" TEXT,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "verificationToken" TEXT,
+    "verificationExpiry" DATETIME,
     "role" TEXT NOT NULL DEFAULT 'EDITOR',
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -108,6 +114,20 @@ CREATE TABLE "Loan" (
 );
 
 -- CreateTable
+CREATE TABLE "ChurchInvite" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "churchId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'EDITOR',
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "invitedBy" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" DATETIME NOT NULL,
+    CONSTRAINT "ChurchInvite_churchId_fkey" FOREIGN KEY ("churchId") REFERENCES "Church" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "SiteSettings" (
     "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'singleton',
     "emailNotifications" BOOLEAN NOT NULL DEFAULT false
@@ -135,6 +155,12 @@ CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_verificationToken_key" ON "User"("verificationToken");
+
+-- CreateIndex
 CREATE INDEX "LoanRequest_resourceId_requestingChurchId_status_idx" ON "LoanRequest"("resourceId", "requestingChurchId", "status");
 
 -- CreateIndex
@@ -151,6 +177,18 @@ CREATE INDEX "Loan_lendingChurchId_status_idx" ON "Loan"("lendingChurchId", "sta
 
 -- CreateIndex
 CREATE INDEX "Loan_borrowingChurchId_status_idx" ON "Loan"("borrowingChurchId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ChurchInvite_token_key" ON "ChurchInvite"("token");
+
+-- CreateIndex
+CREATE INDEX "ChurchInvite_churchId_idx" ON "ChurchInvite"("churchId");
+
+-- CreateIndex
+CREATE INDEX "ChurchInvite_token_idx" ON "ChurchInvite"("token");
+
+-- CreateIndex
+CREATE INDEX "ChurchInvite_email_idx" ON "ChurchInvite"("email");
 
 -- CreateIndex
 CREATE INDEX "ActivityLog_userId_idx" ON "ActivityLog"("userId");

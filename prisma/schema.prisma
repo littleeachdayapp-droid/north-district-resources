@@ -27,6 +27,7 @@ model Church {
 
   resources     Resource[]
   users         User[]
+  invites       ChurchInvite[]
   loanRequests  LoanRequest[]
   borrowedLoans Loan[]        @relation("BorrowingChurch")
   lentLoans     Loan[]        @relation("LendingChurch")
@@ -138,6 +139,23 @@ model Loan {
   @@index([resourceId, borrowingChurchId, lendingChurchId, status])
   @@index([lendingChurchId, status])
   @@index([borrowingChurchId, status])
+}
+
+model ChurchInvite {
+  id        String   @id @default(cuid())
+  churchId  String
+  church    Church   @relation(fields: [churchId], references: [id])
+  email     String
+  token     String   @unique
+  role      String   @default("EDITOR") // EDITOR | ADMIN
+  status    String   @default("PENDING") // PENDING | ACCEPTED | EXPIRED
+  invitedBy String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([churchId])
+  @@index([token])
+  @@index([email])
 }
 
 model SiteSettings {

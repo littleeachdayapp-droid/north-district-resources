@@ -310,7 +310,13 @@
     "registrationDate": "Date",
     "noPendingRegistrations": "No pending registrations.",
     "approving": "Approving...",
-    "rejecting": "Rejecting..."
+    "rejecting": "Rejecting...",
+    "invite": "Invite",
+    "inviteUser": "Invite user to",
+    "inviteEmailPlaceholder": "email@example.com",
+    "sendInvite": "Send Invite",
+    "sending": "Sending...",
+    "inviteSent": "Invite sent successfully."
   },
   "activity": {
     "activityLog": "Activity Log",
@@ -330,6 +336,7 @@
     "CREATE_CHURCH": "Created Church",
     "UPDATE_CHURCH": "Updated Church",
     "UPDATE_SETTINGS": "Updated Settings",
+    "INVITE_USER": "Invited User",
     "allActions": "All Actions",
     "allTypes": "All Types",
     "user": "User",
@@ -407,7 +414,14 @@
     "resendRateLimited": "Please wait before requesting another email.",
     "emailNotVerified": "Please verify your email before logging in. Check your inbox for the verification link.",
     "churchPending": "Your church registration is still being reviewed. You'll receive an email once it's approved.",
-    "churchRejected": "Your church registration was not approved. Check your email for details."
+    "churchRejected": "Your church registration was not approved. Check your email for details.",
+    "inviteTitle": "Accept Invitation",
+    "inviteSubtitle": "You've been invited to manage resources for {church}.",
+    "inviteAccept": "Create Account & Join",
+    "inviteInvalid": "Invalid Invite",
+    "inviteSuccessTitle": "Account Created!",
+    "inviteSuccessMessage": "You're now part of {church}. You can log in and start managing resources.",
+    "validatingInvite": "Validating invite..."
   },
   "bulkImport": {
     "pageTitle": "Bulk Import Resources",

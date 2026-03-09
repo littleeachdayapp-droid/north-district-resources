@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 
@@ -50,6 +50,11 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
   const [success, setSuccess] = useState("");
   const [createForm, setCreateForm] = useState({ ...emptyForm });
   const [editForm, setEditForm] = useState({ ...emptyForm });
+
+  // Invite state
+  const [invitingChurchId, setInvitingChurchId] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteSending, setInviteSending] = useState(false);
 
   const clearMessages = () => {
     setError("");
@@ -169,6 +174,29 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
       const data = await res.json();
       setError(data.error || "Error toggling church status");
     }
+  };
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!invitingChurchId || !inviteEmail) return;
+    clearMessages();
+    setInviteSending(true);
+
+    const res = await fetch(`/api/admin/churches/${invitingChurchId}/invite`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: inviteEmail }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      setSuccess(t("inviteSent"));
+      setInvitingChurchId(null);
+      setInviteEmail("");
+    } else {
+      setError(data.error || "Failed to send invite");
+    }
+    setInviteSending(false);
   };
 
   const renderFormFields = (
@@ -391,9 +419,9 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
             </thead>
             <tbody>
               {churches.map((church) => (
+                <React.Fragment key={church.id}>
                 <tr
-                  key={church.id}
-                  className="border-b border-primary-100 hover:bg-primary-50"
+                  className={`border-b border-primary-100 hover:bg-primary-50 ${invitingChurchId === church.id ? "bg-primary-50" : ""}`}
                 >
                   {editingId === church.id ? (
                     <td colSpan={9} className="py-3">
@@ -465,6 +493,18 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
                         </span>
                       </td>
                       <td className="py-3 text-right space-x-2">
+                        {church.isActive && church.registrationStatus === "APPROVED" && (
+                          <button
+                            onClick={() => {
+                              setInvitingChurchId(invitingChurchId === church.id ? null : church.id);
+                              setInviteEmail("");
+                              clearMessages();
+                            }}
+                            className="text-primary-600 hover:text-primary-700 font-medium"
+                          >
+                            {t("invite")}
+                          </button>
+                        )}
                         <button
                           onClick={() => startEdit(church)}
                           className="text-accent-600 hover:text-accent-700 font-medium"
@@ -485,6 +525,40 @@ export function ChurchesClient({ initialChurches }: ChurchesClientProps) {
                     </>
                   )}
                 </tr>
+                {invitingChurchId === church.id && (
+                  <tr className="border-b border-primary-100 bg-primary-50">
+                    <td colSpan={9} className="py-3 px-4">
+                      <form onSubmit={handleInvite} className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-primary-700">
+                          {t("inviteUser")} {church.name}:
+                        </span>
+                        <input
+                          type="email"
+                          required
+                          placeholder={t("inviteEmailPlaceholder")}
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          className="flex-1 max-w-xs px-3 py-1.5 border border-primary-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent-400"
+                        />
+                        <button
+                          type="submit"
+                          disabled={inviteSending}
+                          className="bg-primary-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-primary-800 disabled:opacity-50"
+                        >
+                          {inviteSending ? t("sending") : t("sendInvite")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setInvitingChurchId(null)}
+                          className="text-sm text-primary-500 hover:text-primary-700"
+                        >
+                          {t("cancel")}
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
