@@ -93,5 +93,8 @@ export async function requireRole(minRole: "EDITOR" | "ADMIN"): Promise<AuthUser
   if (minRole === "ADMIN" && user.role !== "ADMIN") {
     redirect("/login");
   }
+  if (minRole === "EDITOR" && user.role !== "EDITOR" && user.role !== "ADMIN") {
+    redirect("/login");
+  }
   return user;
 }

@@ -38,6 +38,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Block inactive users (admin-deactivated) — check first to avoid leaking account state
+    if (!user.isActive) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
     // Block login if email not verified
     if (user.email && !user.emailVerified) {
       return NextResponse.json(
@@ -54,14 +62,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Your church registration is still being reviewed.", code },
         { status: 403 }
-      );
-    }
-
-    // Block inactive users (admin-deactivated)
-    if (!user.isActive) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
       );
     }
 

@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (new Date() > invite.expiresAt) {
+    await prisma.churchInvite.update({ where: { id: invite.id }, data: { status: "EXPIRED" } });
     return NextResponse.json({ error: "This invite has expired" }, { status: 400 });
   }
 

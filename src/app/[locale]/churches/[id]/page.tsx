@@ -52,7 +52,7 @@ export default async function ChurchProfilePage({
     },
   });
 
-  if (!church) notFound();
+  if (!church || !church.isActive || church.registrationStatus !== "APPROVED") notFound();
 
   const name = localizedField(locale, church.name, church.nameEs);
   const fullAddress = [church.address, church.city, church.state, church.zip]

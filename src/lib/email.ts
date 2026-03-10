@@ -9,6 +9,17 @@ const resend = process.env.RESEND_API_KEY
 
 const FROM_EMAIL = "MinistryShare Austin <noreply@send.ministryshare.org>";
 
+// --- Escape helper ---
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // --- HTML builder ---
 
 function buildEmailHtml(title: string, bodyLines: string[]): string {
@@ -132,9 +143,9 @@ export function notifyAdminNewRegistration(churchId: string): void {
         select: { email: true },
       });
 
-      const subject = `New Church Registration: ${church.name}`;
+      const subject = `New Church Registration: ${escapeHtml(church.name)}`;
       const html = buildEmailHtml("New Church Registration", [
-        `A new church <strong>${church.name}</strong> has registered and is awaiting approval.`,
+        `A new church <strong>${escapeHtml(church.name)}</strong> has registered and is awaiting approval.`,
         "Please log in to the admin dashboard to review this registration.",
       ]);
 
@@ -168,8 +179,8 @@ export function notifyChurchApproved(churchId: string): void {
       const user = church.users[0];
       const subject = `Your church has been approved — MinistryShare Austin`;
       const html = buildEmailHtml("Church Approved", [
-        `Hello ${user.displayName},`,
-        `Great news! <strong>${church.name}</strong> has been approved on MinistryShare Austin.`,
+        `Hello ${escapeHtml(user.displayName)},`,
+        `Great news! <strong>${escapeHtml(church.name)}</strong> has been approved on MinistryShare Austin.`,
         "You can now log in and start sharing resources with other churches.",
       ]);
       await sendDirect(user.email!, subject, html);
@@ -198,11 +209,11 @@ export function notifyChurchRejected(churchId: string, reason?: string): void {
       const user = church.users[0];
       const subject = `Church registration update — MinistryShare Austin`;
       const lines = [
-        `Hello ${user.displayName},`,
-        `We were unable to approve <strong>${church.name}</strong> on MinistryShare Austin at this time.`,
+        `Hello ${escapeHtml(user.displayName)},`,
+        `We were unable to approve <strong>${escapeHtml(church.name)}</strong> on MinistryShare Austin at this time.`,
       ];
       if (reason) {
-        lines.push(`Reason: ${reason}`);
+        lines.push(`Reason: ${escapeHtml(reason)}`);
       }
       lines.push("If you have questions, please contact us.");
 
@@ -221,15 +232,16 @@ export function sendChurchInvite(to: string, token: string, churchName: string, 
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.ministryshare.org";
       const link = `${baseUrl}/${locale}/register/invite?token=${token}`;
+      const safeChurchName = escapeHtml(churchName);
       const subject = locale === "es"
-        ? `Invitación para unirte a ${churchName} en MinistryShare Austin`
-        : `You're invited to join ${churchName} on MinistryShare Austin`;
+        ? `Invitación para unirte a ${safeChurchName} en MinistryShare Austin`
+        : `You're invited to join ${safeChurchName} on MinistryShare Austin`;
       const html = buildEmailHtml(
         locale === "es" ? "Invitación de Iglesia" : "Church Invitation",
         [
           locale === "es"
-            ? `Has sido invitado/a a administrar los recursos de <strong>${churchName}</strong> en MinistryShare Austin.`
-            : `You've been invited to manage resources for <strong>${churchName}</strong> on MinistryShare Austin.`,
+            ? `Has sido invitado/a a administrar los recursos de <strong>${safeChurchName}</strong> en MinistryShare Austin.`
+            : `You've been invited to manage resources for <strong>${safeChurchName}</strong> on MinistryShare Austin.`,
           locale === "es"
             ? `<a href="${link}" style="display:inline-block;padding:10px 20px;background:#78716c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Aceptar invitación</a>`
             : `<a href="${link}" style="display:inline-block;padding:10px 20px;background:#78716c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Accept invitation</a>`,
@@ -259,10 +271,10 @@ export function notifyNewRequest(requestId: string): void {
       });
       if (!req || !req.resource.church.email) return;
 
-      const subject = `New Loan Request for ${req.resource.title}`;
+      const subject = `New Loan Request for ${escapeHtml(req.resource.title)}`;
       const html = buildEmailHtml("New Loan Request", [
-        `Hello ${req.resource.church.name},`,
-        `${req.requestingChurch.name} has requested to borrow <strong>&ldquo;${req.resource.title}&rdquo;</strong> from your church.`,
+        `Hello ${escapeHtml(req.resource.church.name)},`,
+        `${escapeHtml(req.requestingChurch.name)} has requested to borrow <strong>&ldquo;${escapeHtml(req.resource.title)}&rdquo;</strong> from your church.`,
         `Please log in to the dashboard to approve or deny this request.`,
       ]);
       await sendNotification(req.resource.church.email, subject, html);
@@ -284,10 +296,10 @@ export function notifyRequestApproved(requestId: string): void {
       });
       if (!req || !req.requestingChurch.email) return;
 
-      const subject = `Loan Request Approved: ${req.resource.title}`;
+      const subject = `Loan Request Approved: ${escapeHtml(req.resource.title)}`;
       const html = buildEmailHtml("Request Approved", [
-        `Hello ${req.requestingChurch.name},`,
-        `Your request to borrow <strong>&ldquo;${req.resource.title}&rdquo;</strong> from ${req.resource.church.name} has been approved.`,
+        `Hello ${escapeHtml(req.requestingChurch.name)},`,
+        `Your request to borrow <strong>&ldquo;${escapeHtml(req.resource.title)}&rdquo;</strong> from ${escapeHtml(req.resource.church.name)} has been approved.`,
         `Please coordinate pickup with the lending church.`,
       ]);
       await sendNotification(req.requestingChurch.email, subject, html);
@@ -309,11 +321,11 @@ export function notifyRequestDenied(requestId: string): void {
       });
       if (!req || !req.requestingChurch.email) return;
 
-      const subject = `Loan Request Denied: ${req.resource.title}`;
+      const subject = `Loan Request Denied: ${escapeHtml(req.resource.title)}`;
       const html = buildEmailHtml("Request Denied", [
-        `Hello ${req.requestingChurch.name},`,
-        `Your request to borrow <strong>&ldquo;${req.resource.title}&rdquo;</strong> from ${req.resource.church.name} has been denied.`,
-        req.responseMessage ? `Response: ${req.responseMessage}` : "",
+        `Hello ${escapeHtml(req.requestingChurch.name)},`,
+        `Your request to borrow <strong>&ldquo;${escapeHtml(req.resource.title)}&rdquo;</strong> from ${escapeHtml(req.resource.church.name)} has been denied.`,
+        req.responseMessage ? `Response: ${escapeHtml(req.responseMessage)}` : "",
       ].filter(Boolean));
       await sendNotification(req.requestingChurch.email, subject, html);
     } catch (err) {
@@ -334,10 +346,10 @@ export function notifyRequestCancelled(requestId: string): void {
       });
       if (!req || !req.resource.church.email) return;
 
-      const subject = `Loan Request Cancelled: ${req.resource.title}`;
+      const subject = `Loan Request Cancelled: ${escapeHtml(req.resource.title)}`;
       const html = buildEmailHtml("Request Cancelled", [
-        `Hello ${req.resource.church.name},`,
-        `${req.requestingChurch.name} has cancelled their request to borrow <strong>&ldquo;${req.resource.title}&rdquo;</strong>.`,
+        `Hello ${escapeHtml(req.resource.church.name)},`,
+        `${escapeHtml(req.requestingChurch.name)} has cancelled their request to borrow <strong>&ldquo;${escapeHtml(req.resource.title)}&rdquo;</strong>.`,
       ]);
       await sendNotification(req.resource.church.email, subject, html);
     } catch (err) {
@@ -359,10 +371,10 @@ export function notifyLoanReturned(loanId: string): void {
       });
       if (!loan || !loan.lendingChurch.email) return;
 
-      const subject = `Loan Returned: ${loan.resource.title}`;
+      const subject = `Loan Returned: ${escapeHtml(loan.resource.title)}`;
       const html = buildEmailHtml("Loan Returned", [
-        `Hello ${loan.lendingChurch.name},`,
-        `${loan.borrowingChurch.name} has returned <strong>&ldquo;${loan.resource.title}&rdquo;</strong>.`,
+        `Hello ${escapeHtml(loan.lendingChurch.name)},`,
+        `${escapeHtml(loan.borrowingChurch.name)} has returned <strong>&ldquo;${escapeHtml(loan.resource.title)}&rdquo;</strong>.`,
         `The resource is now available again.`,
       ]);
       await sendNotification(loan.lendingChurch.email, subject, html);
@@ -385,10 +397,10 @@ export function notifyLoanOverdue(loanId: string): void {
       });
       if (!loan || !loan.borrowingChurch.email) return;
 
-      const subject = `Loan Overdue: ${loan.resource.title}`;
+      const subject = `Loan Overdue: ${escapeHtml(loan.resource.title)}`;
       const html = buildEmailHtml("Loan Overdue", [
-        `Hello ${loan.borrowingChurch.name},`,
-        `The loan of <strong>&ldquo;${loan.resource.title}&rdquo;</strong> from ${loan.lendingChurch.name} has been marked as overdue.`,
+        `Hello ${escapeHtml(loan.borrowingChurch.name)},`,
+        `The loan of <strong>&ldquo;${escapeHtml(loan.resource.title)}&rdquo;</strong> from ${escapeHtml(loan.lendingChurch.name)} has been marked as overdue.`,
         `Please arrange return as soon as possible.`,
       ]);
       await sendNotification(loan.borrowingChurch.email, subject, html);
@@ -411,11 +423,11 @@ export function notifyLoanLost(loanId: string): void {
       });
       if (!loan || !loan.lendingChurch.email) return;
 
-      const subject = `Loan Marked Lost: ${loan.resource.title}`;
+      const subject = `Loan Marked Lost: ${escapeHtml(loan.resource.title)}`;
       const html = buildEmailHtml("Loan Marked Lost", [
-        `Hello ${loan.lendingChurch.name},`,
-        `The loan of <strong>&ldquo;${loan.resource.title}&rdquo;</strong> to ${loan.borrowingChurch.name} has been marked as lost.`,
-        `Please contact ${loan.borrowingChurch.name} to resolve.`,
+        `Hello ${escapeHtml(loan.lendingChurch.name)},`,
+        `The loan of <strong>&ldquo;${escapeHtml(loan.resource.title)}&rdquo;</strong> to ${escapeHtml(loan.borrowingChurch.name)} has been marked as lost.`,
+        `Please contact ${escapeHtml(loan.borrowingChurch.name)} to resolve.`,
       ]);
       await sendNotification(loan.lendingChurch.email, subject, html);
     } catch (err) {

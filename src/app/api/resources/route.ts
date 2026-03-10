@@ -42,7 +42,9 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(params.get("page") || "1"));
   const limit = Math.min(50, Math.max(1, parseInt(params.get("limit") || "12")));
 
-  const where: Prisma.ResourceWhereInput = {};
+  const where: Prisma.ResourceWhereInput = {
+    church: { isActive: true, registrationStatus: "APPROVED" },
+  };
 
   if (search) {
     where.OR = [

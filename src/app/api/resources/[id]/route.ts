@@ -50,7 +50,7 @@ export async function GET(
     },
   });
 
-  if (!resource) {
+  if (!resource || !resource.church.isActive || resource.church.registrationStatus !== "APPROVED") {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -158,6 +158,8 @@ export async function DELETE(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  await prisma.loanRequest.deleteMany({ where: { resourceId: id } });
+  await prisma.loan.deleteMany({ where: { resourceId: id } });
   await prisma.resource.delete({ where: { id } });
 
   logActivity({
